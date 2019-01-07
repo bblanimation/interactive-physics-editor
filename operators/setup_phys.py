@@ -123,9 +123,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
     # class methods
 
     def add_to_new_scene(self):
-        self.sim_scene = bpy.data.scenes.get("Interactive Physics Session")
-        if self.sim_scene is None:
-            self.sim_scene = bpy.data.scenes.new("Interactive Physics Session")
+        self.sim_scene = bpy.data.scenes.new("Interactive Physics Session")
 
         #TODO Clear existing objects and any physics cache
         for ob in self.sim_scene.objects:
@@ -143,8 +141,6 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
     def set_up_physics(self):
         self.sim_scene.use_gravity = False
         #clear existing rigidbody
-        if self.sim_scene.rigidbody_world:
-            bpy.ops.rigidbody.world_remove()
         bpy.ops.rigidbody.world_add()
 
         #potentially adjust these values
@@ -159,7 +155,6 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         if obj_group is None:
             obj_group = bpy.data.groups.new(group_name)
         rbw.group = obj_group
-        bpy.ops.rigidbody.objects_remove()
         bpy.ops.rigidbody.objects_add()
 
         for obj in self.objs:
