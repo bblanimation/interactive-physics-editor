@@ -2,8 +2,6 @@
 
 The Interactive Physics Editor is an addon for Blender designed to simplify the process of positioning multiple objects in 3D space. In an Interactive Physics Session, objects will dynamically shift out of the way of the object(s) you are transforming to prevent them from passing through one another.
 
-![Teeth Model](https://farm2.staticflickr.com/1816/43384740134_3e03c9f125_b.jpg)
-
 ## Getting Interactive Physics Editor
 
 You can purchase Interactive Physics Editor on the [Blender Market](https://www.blendermarket.com/products/interactive-physics-editor)
