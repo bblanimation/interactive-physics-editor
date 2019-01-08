@@ -32,8 +32,10 @@ import bpy
 from bpy.types import Scene
 
 # Addon imports
-from .operators.setup_phys import *
-from .ui import *
+# from .operators.setup_phys import *
+# from .ui import *
+# from .lib.preferences import *
+from .lib.classesToRegister import *
 from . import addon_updater_ops
 
 # property update functions
@@ -46,11 +48,6 @@ def update_lock_rot(scene, context):
 def update_collision_margin(scene, context):
     for obj in scene.objects:
         obj.rigid_body.collision_margin = scene.phys_collision_margin
-
-classes = [
-    PHYSICS_OT_setup_interactive_sim,
-    PHYSICS_PT_interactive_editor,
-]
 
 def register():
     # register classes
