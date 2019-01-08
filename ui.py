@@ -23,7 +23,7 @@ class PHYSICS_PT_interactive_editor(Panel):
     bl_space_type  = "VIEW_3D"
     bl_region_type = "TOOLS"
     bl_label       = "Interactive Physics Editor"
-    bl_idname      = "VIEW3D_PT_tools_physics_interactive"
+    bl_idname      = "VIEW3D_PT_interactive_editor"
     bl_context     = "objectmode"
     bl_category    = "Physics"
 

@@ -15,18 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-bl_info = {
-    "name"        : "Interactive Physics Editor",
-    "author"      : "Christopher Gearhart <chris@bblanimation.com> & Patrick Moore <patrick@d3tool.com>",
-    "version"     : (1, 0, 0),
-    "blender"     : (2, 79, 0),
-    "description" : "Append ABS Plastic Materials to current blender file with a simple click",
-    "location"    : "View 3D > Tools > Physics",
-    "warning"     : "",  # used for warning icon and text in addons panel
-    "wiki_url"    : "https://www.blendermarket.com/products/abs-plastic-materials",
-    "tracker_url" : "https://github.com/bblanimation/abs-plastic-materials/issues",
-    "category"    : "Materials"}
-
 # Blender imports
 import bpy
 from bpy.types import Operator
