@@ -32,9 +32,6 @@ import bpy
 from bpy.types import Scene
 
 # Addon imports
-# from .operators.setup_phys import *
-# from .ui import *
-# from .lib.preferences import *
 from .lib.classesToRegister import *
 from . import addon_updater_ops
 
