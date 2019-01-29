@@ -66,10 +66,10 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
                     if event.type == "LEFTMOUSE":
                         self.sim_scene.frame_end = self.sim_scene.frame_current + 1
                         self.replace_end_frame = True
-                    elif event.type == "RIGHTMOUSE":
-                        bpy.ops.screen.animation_cancel()
-                        self.sim_scene.frame_set(0)
-                        bpy.ops.screen.animation_play()
+                    # elif event.type == "RIGHTMOUSE":
+                    #     bpy.ops.screen.animation_cancel()
+                    #     self.sim_scene.frame_set(0)
+                    #     bpy.ops.screen.animation_play()
             return {"PASS_THROUGH"}
         except Exception as e:
             print(e)
@@ -102,6 +102,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         self.selected_objects = []
         for obj in self.objs:
             self.matrices[obj.name] = obj.matrix_world.copy()
+        self.manipulator_shown = bpy.context.space_data.show_manipulator
         self.ui_start()
 
     ###################################################

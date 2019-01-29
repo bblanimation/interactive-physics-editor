@@ -80,6 +80,7 @@ class interactive_sim_drawing():
             for a in self.areas
             ]
         self.draw_preview()
+        bpy.context.space_data.show_manipulator = False
         tag_redraw_areas()
 
     def ui_end(self):
@@ -108,6 +109,7 @@ class interactive_sim_drawing():
         if hasattr(self, 'cb_pp_all'):
             for s,a,cb in self.cb_pp_all: s.draw_handler_remove(cb, a)
             del self.cb_pp_all
+        bpy.context.space_data.show_manipulator = self.manipulator_shown
         tag_redraw_areas()
 
     def draw_callback_preview(self, context):
