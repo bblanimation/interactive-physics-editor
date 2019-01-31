@@ -667,3 +667,8 @@ def splitpath(path):
             if path != "": folders.append(path)
             break
     return folders[::-1]
+
+def apply_modifiers(obj, settings="PREVIEW"):
+    m = obj.to_mesh(bpy.context.scene, True, "PREVIEW")
+    obj.modifiers.clear()
+    obj.data = m
