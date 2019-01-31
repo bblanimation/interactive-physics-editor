@@ -115,7 +115,7 @@ class interactive_sim_drawing():
     def draw_callback_preview(self, context):
         bgl.glPushAttrib(bgl.GL_ALL_ATTRIB_BITS)    # save OpenGL attributes
         try:    self.draw_preview()
-        except: handle_exception()
+        except: interactive_physics_handle_exception()
         bgl.glPopAttrib()                           # restore OpenGL attributes
 
     # def draw_callback_postview(self, context):

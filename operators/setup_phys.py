@@ -71,9 +71,8 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
                     #     self.sim_scene.frame_set(0)
                     #     bpy.ops.screen.animation_play()
             return {"PASS_THROUGH"}
-        except Exception as e:
-            print(e)
-            self.report({"WARNING"}, "Error occured (see terminal)")
+        except:
+            interactive_physics_handle_exception()
             self.close_interactive_sim()
             return {"CANCELLED"}
 
@@ -84,9 +83,8 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             bpy.ops.screen.animation_play()
             context.window_manager.modal_handler_add(self)
             return {'RUNNING_MODAL'}
-        except Exception as e:
-            print(e)
-            self.report({"WARNING"}, "Error occured (see terminal)")
+        except:
+            interactive_physics_handle_exception()
             self.close_interactive_sim()
             return {'CANCELLED'}
 
@@ -100,6 +98,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         self.replace_end_frame = False
         self.matrices = {}
         self.selected_objects = []
+        self.sim_scene = None
         for obj in self.objs:
             self.matrices[obj.name] = obj.matrix_world.copy()
         self.manipulator_shown = bpy.context.space_data.show_manipulator
@@ -169,6 +168,8 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
 
     def close_interactive_sim(self):
         self.ui_end()
+        if self.sim_scene is None:
+            return
         for obj in self.objs:
             self.matrices[obj.name] = obj.matrix_world.copy()
         bpy.ops.rigidbody.objects_remove()

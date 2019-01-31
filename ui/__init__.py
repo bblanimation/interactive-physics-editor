@@ -31,6 +31,15 @@ class PHYSICS_PT_interactive_editor(Panel):
         layout = self.layout
         scn = context.scene
 
+        if bpy.data.texts.find('Interactive Physics Editor log') >= 0:
+            split = layout.split(align=True, percentage=0.9)
+            col = split.column(align=True)
+            row = col.row(align=True)
+            row.operator("scene.report_error", text="Report Error", icon="URL").addon_name = "Interactive Physics Editor"
+            col = split.column(align=True)
+            row = col.row(align=True)
+            row.operator("scene.close_report_error", text="", icon="PANEL_CLOSE").addon_name = "Interactive Physics Editor"
+
         col = layout.column(align=True)
         if context.scene.name != "Interactive Physics Session":
             col.operator("physics.setup_interactive_sim", text="New Interactive Physics Session", icon="PHYSICS")

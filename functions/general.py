@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from .common import *
+
 def get_quadview_index(context, x, y):
     for area in context.screen.areas:
         if area.type != 'VIEW_3D':
@@ -38,3 +40,6 @@ def get_quadview_index(context, x, y):
 
                     return (area.spaces.active, None if is_quadview else i)
     return (None, None)
+
+def interactive_physics_handle_exception():
+    handle_exception(log_name="Interactive Physics Editor log", report_button_loc="Physics > Interactive Physics Editor > Report Error")

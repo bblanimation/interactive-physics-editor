@@ -18,6 +18,7 @@
 from ..operators.setup_phys import *
 from ..ui import *
 from .preferences import *
+from .reportError import *
 from .. import addon_updater_ops
 
 classes = (
@@ -37,4 +38,6 @@ classes = (
     PHYSICS_PT_interactive_editor,
     # interactive_physics_editor/lib
     INTERPHYS_PT_preferences,
+    SCENE_OT_report_error,
+    SCENE_OT_close_report_error,
 )
