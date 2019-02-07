@@ -63,9 +63,9 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
                 if space is None:
                     return {"RUNNING_MODAL"}
                 elif event.value == "RELEASE":
-                    if event.type == "LEFTMOUSE":
-                        self.sim_scene.frame_end = self.sim_scene.frame_current + 1
-                        self.replace_end_frame = True
+                    # if event.type == "LEFTMOUSE":
+                    self.sim_scene.frame_end = self.sim_scene.frame_current + 1
+                    self.replace_end_frame = True
                     # elif event.type == "RIGHTMOUSE":
                     #     bpy.ops.screen.animation_cancel()
                     #     self.sim_scene.frame_set(0)
