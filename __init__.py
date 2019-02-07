@@ -45,6 +45,8 @@ def update_lock_rot(scene, context):
 def update_collision_margin(scene, context):
     for obj in scene.objects:
         obj.rigid_body.collision_margin = scene.phys_collision_margin
+def update_enable_gravity(scene, context):
+    scene.use_gravity = scene.phys_use_gravity
 
 def register():
     # register classes
@@ -58,6 +60,7 @@ def register():
     Scene.phys_lock_rot_y = BoolProperty(name="Lock Y", default=True, update=update_lock_rot)
     Scene.phys_lock_rot_z = BoolProperty(name="Lock Z", default=True, update=update_lock_rot)
     Scene.phys_collision_margin = FloatProperty(name="Collision Margin", default=0.0, min=-1, max=1, step=1, update=update_collision_margin)
+    Scene.phys_use_gravity = BoolProperty(name="Use Gravity", default=False, update=update_enable_gravity)
     # addon updater code and configurations
     addon_updater_ops.register(bl_info)
 
@@ -65,13 +68,14 @@ def unregister():
     # unregister addon updater
     addon_updater_ops.unregister()
     # unregister properties
-    del Scene.phys_lock_loc_x
-    del Scene.phys_lock_loc_y
-    del Scene.phys_lock_loc_z
-    del Scene.phys_lock_rot_x
-    del Scene.phys_lock_rot_y
-    del Scene.phys_lock_rot_z
+    del Scene.phys_use_gravity
     del Scene.phys_collision_margin
+    del Scene.phys_lock_rot_z
+    del Scene.phys_lock_rot_y
+    del Scene.phys_lock_rot_x
+    del Scene.phys_lock_loc_z
+    del Scene.phys_lock_loc_y
+    del Scene.phys_lock_loc_x
     # unregister classes
     for cls in classes:
         bpy.utils.unregister_class(cls)

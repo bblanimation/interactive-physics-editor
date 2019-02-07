@@ -127,6 +127,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         bpy.ops.object.visual_transform_apply()
 
     def set_up_physics(self):
+        self.sim_scene.phys_use_gravity = False
         self.sim_scene.use_gravity = False
         #clear existing rigidbody
         bpy.ops.rigidbody.world_add()

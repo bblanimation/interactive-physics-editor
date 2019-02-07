@@ -44,7 +44,7 @@ class PHYSICS_PT_interactive_editor(Panel):
         if context.scene.name != "Interactive Physics Session":
             col.operator("physics.setup_interactive_sim", text="New Interactive Physics Session", icon="PHYSICS")
         else:
-            col.label("Object Behavior:")
+            col.label(text="Object Behavior:")
             split = col.split(align=True)
             col = split.column(align=True)
             col.operator("rigidbody.objects_add", text="Make Active").type = 'ACTIVE'
@@ -54,21 +54,23 @@ class PHYSICS_PT_interactive_editor(Panel):
             col = layout.column(align=True)
             split = col.split(align=True)
             col = split.column(align=True)
-            col.label("Location")
+            col.label(text="Location")
             col.prop(scn, "phys_lock_loc_x")
             col.prop(scn, "phys_lock_loc_y")
             col.prop(scn, "phys_lock_loc_z")
             col = split.column(align=True)
-            col.label("Rotation")
+            col.label(text="Rotation")
             col.prop(scn, "phys_lock_rot_x")
             col.prop(scn, "phys_lock_rot_y")
             col.prop(scn, "phys_lock_rot_z")
 
             col = layout.column(align=True)
             col.prop(scn, "phys_collision_margin")
+            col = layout.column(align=True)
+            col.prop(scn, "phys_use_gravity", text="Enable Gravity")
 
             layout.split()
             col = layout.column(align=True)
             col.scale_y = 0.7
-            col.label("Press 'RETURN' to commit")
-            col.label("Press 'ESC' to cancel")
+            col.label(text="Press 'RETURN' to commit")
+            col.label(text="Press 'ESC' to cancel")
