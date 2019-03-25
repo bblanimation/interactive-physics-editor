@@ -163,7 +163,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             rb.friction = 0.1
             rb.use_margin = True
             rb.collision_margin = 0
-            rb.collision_shape = 'MESH'
+            rb.collision_shape = bpy.context.scene.phys_collision_shape
             rb.restitution = 0
             rb.linear_damping = 1
             rb.angular_damping = 0.9

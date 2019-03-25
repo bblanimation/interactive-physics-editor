@@ -39,10 +39,10 @@ class PHYSICS_PT_interactive_editor(Panel):
             split = layout_split(layout, factor=0.9)
             col = split.column(align=True)
             row = col.row(align=True)
-            row.operator("scene.report_error", text="Report Error", icon="URL")
+            row.operator("interactive_physics_editor.report_error", text="Report Error", icon="URL")
             col = split.column(align=True)
             row = col.row(align=True)
-            row.operator("scene.close_report_error", text="", icon="PANEL_CLOSE")
+            row.operator("interactive_physics_editor.close_report_error", text="", icon="PANEL_CLOSE")
 
         col = layout.column(align=True)
         if context.scene.name != "Interactive Physics Session":
@@ -54,6 +54,9 @@ class PHYSICS_PT_interactive_editor(Panel):
             col.operator("rigidbody.objects_add", text="Make Active").type = 'ACTIVE'
             col = split.column(align=True)
             col.operator("rigidbody.objects_add", text="Make Passive").type = 'PASSIVE'
+            col = layout.column(align=True)
+            col.label(text="Collision Shape:")
+            col.prop(scn, "phys_collision_shape", text="")
 
             col = layout.column(align=True)
             split = col.split(align=True)
