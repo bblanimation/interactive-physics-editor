@@ -105,7 +105,6 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         self.sim_scene = None
         for obj in self.objs:
             self.matrices[obj.name] = obj.matrix_world.copy()
-        self.gismo_shown = gismo_shown()
         if not b280():
             self.ui_start()
 

@@ -377,30 +377,6 @@ def disableRelationshipLines():
             area.spaces[0].overlay.show_relationship_lines = False
 
 
-@blender_version_wrapper("<=", "2.79")
-def show_gismo():
-    bpy.context.space_data.show_manipulator = True
-@blender_version_wrapper(">=", "2.80")
-def show_gismo():
-    bpy.context.space_data.show_gizmo = True
-
-
-@blender_version_wrapper("<=", "2.79")
-def disable_gismo():
-    bpy.context.space_data.show_manipulator = False
-@blender_version_wrapper(">=", "2.80")
-def disable_gismo():
-    bpy.context.space_data.show_gizmo = False
-
-
-@blender_version_wrapper("<=", "2.79")
-def gismo_shown():
-    return bpy.context.space_data.show_manipulator
-@blender_version_wrapper(">=", "2.80")
-def gismo_shown():
-    return bpy.context.space_data.show_gizmo
-
-
 def setActiveScn(scn:Scene):
     """ set active scene in all screens """
     for screen in bpy.data.screens:
