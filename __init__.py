@@ -19,7 +19,7 @@ bl_info = {
     "name"        : "Interactive Physics Editor",
     "author"      : "Christopher Gearhart <chris@bblanimation.com> & Patrick Moore <patrick@d3tool.com>",
     "version"     : (1, 1, 0),
-    "blender"     : (2, 79, 0),
+    "blender"     : (2, 80, 0),
     "description" : "Simplifies the process of positioning multiple objects in 3D space with collision handling",
     "location"    : "View 3D > Tools > Physics > Interactive Physics Editor",
     "warning"     : "",  # used for warning icon and text in addons panel
@@ -33,6 +33,7 @@ from bpy.types import Scene
 
 # Addon imports
 from .lib.classesToRegister import *
+from .functions.common import *
 from . import addon_updater_ops
 
 # property update functions
@@ -51,6 +52,7 @@ def update_enable_gravity(scene, context):
 def register():
     # register classes
     for cls in classes:
+        make_annotations(cls)
         bpy.utils.register_class(cls)
     # register properties
     Scene.phys_lock_loc_x = BoolProperty(name="Lock X", default=False, update=update_lock_loc)

@@ -21,8 +21,11 @@ from bpy.types import Panel, Operator, Scene
 from bpy.app.handlers import persistent
 from mathutils import Matrix, Vector
 
+# Addon imports
+from .functions.common import *
+
 # global vars
-group_name = "interactive_edit_session"
+collection_name = "interactive_edit_session"
 
 @persistent
 def handle_edit_session_pre(scene):
@@ -30,10 +33,10 @@ def handle_edit_session_pre(scene):
         return
     if scene.frame_current != scene.frame_end:
         return
-    g = bpy.data.groups.get(group_name)
-    if g is None:
+    c = bpy_collections().get(collection_name)
+    if c is None:
         return
-    for obj in g.objects:
+    for obj in c.objects:
         obj["d3tool_last_matrix"] = obj.matrix_world.copy()
 
 @persistent
@@ -42,10 +45,10 @@ def handle_edit_session_post(scene):
         return
     if scene.frame_current != scene.frame_start:
         return
-    g = bpy.data.groups.get(group_name)
-    if g is None:
+    c = bpy_collections().get(collection_name)
+    if c is None:
         return
-    for obj in g.objects:
+    for obj in c.objects:
         try:
             obj.matrix_world = Matrix(obj["d3tool_last_matrix"])
         except KeyError:

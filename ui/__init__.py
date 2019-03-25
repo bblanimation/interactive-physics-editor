@@ -19,11 +19,15 @@
 import bpy
 from bpy.types import Panel
 
+# Addon imports
+from ..functions.common import *
+
+
 class PHYSICS_PT_interactive_editor(Panel):
     bl_space_type  = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_region_type = "UI" if b280() else "TOOLS"
     bl_label       = "Interactive Physics Editor"
-    bl_idname      = "VIEW3D_PT_interactive_editor"
+    bl_idname      = "PHYSICS_PT_interactive_editor"
     bl_context     = "objectmode"
     bl_category    = "Physics"
 
@@ -32,13 +36,13 @@ class PHYSICS_PT_interactive_editor(Panel):
         scn = context.scene
 
         if bpy.data.texts.find('Interactive Physics Editor log') >= 0:
-            split = layout.split(align=True, percentage=0.9)
+            split = layout_split(layout, factor=0.9)
             col = split.column(align=True)
             row = col.row(align=True)
-            row.operator("scene.report_error", text="Report Error", icon="URL").addon_name = "Interactive Physics Editor"
+            row.operator("scene.report_error", text="Report Error", icon="URL")
             col = split.column(align=True)
             row = col.row(align=True)
-            row.operator("scene.close_report_error", text="", icon="PANEL_CLOSE").addon_name = "Interactive Physics Editor"
+            row.operator("scene.close_report_error", text="", icon="PANEL_CLOSE")
 
         col = layout.column(align=True)
         if context.scene.name != "Interactive Physics Session":
@@ -68,6 +72,9 @@ class PHYSICS_PT_interactive_editor(Panel):
             col.prop(scn, "phys_collision_margin")
             col = layout.column(align=True)
             col.prop(scn, "phys_use_gravity", text="Enable Gravity")
+            row = col.row(align=True)
+            row.active = scn.use_gravity
+            row.prop(scn, "gravity", text="")
 
             layout.split()
             col = layout.column(align=True)

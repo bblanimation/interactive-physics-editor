@@ -17,6 +17,7 @@
 
 from .common import *
 
+@blender_version_wrapper("<=", "2.79")
 def get_quadview_index(context, x, y):
     for area in context.screen.areas:
         if area.type != 'VIEW_3D':
@@ -39,6 +40,23 @@ def get_quadview_index(context, x, y):
                     y < region.height + region.y):
 
                     return (area.spaces.active, None if is_quadview else i)
+    return (None, None)
+@blender_version_wrapper(">=", "2.80")
+def get_quadview_index(context, x, y):
+    for area in context.screen.areas:
+        if area.type != 'VIEW_3D':
+            continue
+        is_quadview = len(area.spaces.active.region_quadviews) == 0
+        i = -1
+        for region in area.regions:
+            if (x >= region.x and
+                y >= region.y and
+                x < region.width + region.x and
+                y < region.height + region.y):
+                if region.type == 'WINDOW':
+                    return (area.spaces.active, None if is_quadview else i)
+                elif region.type == 'UI':
+                    return ("UI", None)
     return (None, None)
 
 def interactive_physics_handle_exception():

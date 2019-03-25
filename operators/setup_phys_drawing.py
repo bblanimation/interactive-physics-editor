@@ -38,8 +38,9 @@ class interactive_sim_drawing():
         # # report something useful to user
         # bpy.context.area.header_text_set("Click & drag to add bricks (+'ALT' to remove). Press 'RETURN' to commit changes")
         # update dpi
-        ui_scale = bpy.context.user_preferences.view.ui_scale
-        pixel_size = bpy.context.user_preferences.system.pixel_size
+        prefs = get_preferences(bpy.context)
+        ui_scale = prefs.view.ui_scale
+        pixel_size = prefs.system.pixel_size
         self.dpi = int(72 * ui_scale * pixel_size)
 
 
@@ -80,7 +81,7 @@ class interactive_sim_drawing():
             for a in self.areas
             ]
         self.draw_preview()
-        bpy.context.space_data.show_manipulator = False
+        disable_gismo()
         tag_redraw_areas()
 
     def ui_end(self):
@@ -109,7 +110,7 @@ class interactive_sim_drawing():
         if hasattr(self, 'cb_pp_all'):
             for s,a,cb in self.cb_pp_all: s.draw_handler_remove(cb, a)
             del self.cb_pp_all
-        bpy.context.space_data.show_manipulator = self.manipulator_shown
+        if self.gismo_shown: show_gismo()
         tag_redraw_areas()
 
     def draw_callback_preview(self, context):
@@ -305,20 +306,20 @@ class interactive_sim_drawing():
     # @staticmethod
     # @blender_version('<','2.79')
     # def update_dpi():
-    #     paintbrush._dpi = bpy.context.user_preferences.system.dpi
-    #     if bpy.context.user_preferences.system.virtual_pixel_mode == 'DOUBLE':
+    #     paintbrush._dpi = get_preferences(bpy.context).system.dpi
+    #     if get_preferences(bpy.context).system.virtual_pixel_mode == 'DOUBLE':
     #         paintbrush._dpi *= 2
-    #     paintbrush._dpi *= bpy.context.user_preferences.system.pixel_size
+    #     paintbrush._dpi *= get_preferences(bpy.context).system.pixel_size
     #     paintbrush._dpi = int(paintbrush._dpi)
     #     paintbrush._dpi_mult = paintbrush._dpi / 72
     #
     # @staticmethod
     # @blender_version('>=','2.79')
     # def update_dpi():
-    #     paintbrush._ui_scale = bpy.context.user_preferences.view.ui_scale
-    #     paintbrush._sysdpi = bpy.context.user_preferences.system.dpi
-    #     paintbrush._pixel_size = bpy.context.user_preferences.system.pixel_size
-    #     paintbrush._dpi = 72 # bpy.context.user_preferences.system.dpi
+    #     paintbrush._ui_scale = get_preferences(bpy.context).view.ui_scale
+    #     paintbrush._sysdpi = get_preferences(bpy.context).system.dpi
+    #     paintbrush._pixel_size = get_preferences(bpy.context).system.pixel_size
+    #     paintbrush._dpi = 72 # get_preferences(bpy.context).system.dpi
     #     paintbrush._dpi *= paintbrush._ui_scale
     #     paintbrush._dpi *= paintbrush._pixel_size
     #     paintbrush._dpi = int(paintbrush._dpi)

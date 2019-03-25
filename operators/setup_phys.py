@@ -22,6 +22,7 @@ from mathutils import Matrix, Vector
 
 # Addon imports
 from .setup_phys_drawing import *
+from ..functions.common import *
 from ..app_handlers import *
 
 class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
@@ -43,7 +44,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             if event.type == "RET":
                 # ensure mouse is in 3D_VIEW
                 space, i = get_quadview_index(context, event.mouse_x, event.mouse_y)
-                if space in (None, "TOOLS"):
+                if space in (None, "UI" if b280() else "TOOLS"):
                     return {"RUNNING_MODAL"}
                 self.close_interactive_sim()
                 return {"FINISHED"}
@@ -57,6 +58,9 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             elif event.type == "Z" and (event.oskey or event.ctrl):
                 self.report({"WARNING"}, "Undo not available for interactive simulation. Cancel all changes with the 'ESC' key")
                 return {"RUNNING_MODAL"}
+            elif b280() and event.type == "A" and event.value == "RELEASE":
+                self.sim_scene.frame_end = self.sim_scene.frame_current + 1
+                self.replace_end_frame = True
             # block left_click if not in 3D viewport
             elif event.type in ("LEFTMOUSE", "RIGHTMOUSE"):
                 space, i = get_quadview_index(context, event.mouse_x, event.mouse_y)
@@ -101,8 +105,9 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         self.sim_scene = None
         for obj in self.objs:
             self.matrices[obj.name] = obj.matrix_world.copy()
-        self.manipulator_shown = bpy.context.space_data.show_manipulator
-        self.ui_start()
+        self.gismo_shown = gismo_shown()
+        if not b280():
+            self.ui_start()
 
     ###################################################
     # class variables
@@ -112,17 +117,16 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
 
     def add_to_new_scene(self):
         self.sim_scene = bpy.data.scenes.new("Interactive Physics Session")
+        set_active_scene(self.sim_scene)
 
         #TODO Clear existing objects and any physics cache
         for ob in self.sim_scene.objects:
             bpy.data.objects.remove(ob, do_unlink=True)
 
         for obj in self.objs:
-            self.sim_scene.objects.link(obj)
-            self.sim_scene.objects.active = obj
-            obj.select = True
+            link_object(obj, scene=self.sim_scene)
+            select(obj, active=True)
 
-        bpy.context.screen.scene = self.sim_scene
         # bpy.ops.object.make_single_user(type='SELECTED_OBJECTS', object=True, obdata=False)
         bpy.ops.object.visual_transform_apply()
 
@@ -140,10 +144,13 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         self.sim_scene.frame_set(0)
 
         # get group for objects
-        obj_group = bpy.data.groups.get(group_name)
-        if obj_group is None:
-            obj_group = bpy.data.groups.new(group_name)
-        rbw.group = obj_group
+        obj_coll = bpy_collections().get(collection_name)
+        if obj_coll is None:
+            obj_coll = bpy_collections().new(collection_name)
+        if b280():
+            rbw.collection = obj_coll
+        else:
+            rbw.group = obj_coll
         bpy.ops.rigidbody.objects_add()
 
         for obj in self.objs:
@@ -162,7 +169,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             rb.linear_damping = 1
             rb.angular_damping = 0.9
             rb.mass = 3
-            obj.select = False
+            deselect(obj)
 
         bpy.app.handlers.frame_change_pre.append(handle_edit_session_pre)
         bpy.app.handlers.frame_change_post.append(handle_edit_session_post)
@@ -176,9 +183,9 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         bpy.ops.rigidbody.objects_remove()
         bpy.ops.screen.animation_cancel()
         self.sim_scene.frame_set(self.orig_frame)
-        bpy.context.screen.scene = self.orig_scene
+        set_active_scene(self.orig_scene)
         bpy.data.scenes.remove(self.sim_scene)
-        bpy.data.groups.remove(bpy.data.groups.get(group_name))
+        bpy_collections().remove(bpy_collections().get(collection_name))
         for obj in self.objs:
             obj.matrix_world = self.matrices[obj.name]
         self.orig_scene.update()
