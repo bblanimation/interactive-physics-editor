@@ -99,7 +99,6 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         self.objs = list(bpy.context.selected_objects)
         self.orig_scene = bpy.context.scene
         self.orig_frame = self.orig_scene.frame_current
-        self.orig_sync_mode = bpy.context.scene.sync_mode
 
         self.replace_end_frame = False
         self.matrices = {}
@@ -117,10 +116,16 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
     # class methods
 
     def add_to_new_scene(self):
+        # add new physics session scene
         self.sim_scene = bpy.data.scenes.new("Interactive Physics Session")
         set_active_scene(self.sim_scene)
 
-        #TODO Clear existing objects and any physics cache
+        # set new scene properties
+        self.sim_scene.phys_use_gravity = False
+        self.sim_scene.use_gravity = False
+        self.sim_scene.sync_mode = 'NONE'
+
+        # TODO Clear existing objects and any physics cache
         for ob in self.sim_scene.objects:
             bpy.data.objects.remove(ob, do_unlink=True)
 
@@ -132,13 +137,10 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         bpy.ops.object.visual_transform_apply()
 
     def set_up_physics(self):
-        self.sim_scene.phys_use_gravity = False
-        self.sim_scene.use_gravity = False
-        self.sim_scene.sync_mode = 'NONE'
-        #clear existing rigidbody
+        # add rigid body world to new scene
         bpy.ops.rigidbody.world_add()
 
-        #potentially adjust these values
+        # potentially adjust these values
         rbw = self.sim_scene.rigidbody_world
         rbw.solver_iterations = 15
         rbw.point_cache.frame_start = 1 #more time for sim.
@@ -200,7 +202,6 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             obj.lock_rotation_w = False
         bpy.app.handlers.frame_change_pre.remove(handle_edit_session_pre)
         bpy.app.handlers.frame_change_post.remove(handle_edit_session_post)
-        self.sim_scene.sync_mode = self.orig_sync_mode
 
     def cancel_interactive_sim(self):
         for obj in self.objs:
