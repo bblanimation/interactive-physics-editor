@@ -476,7 +476,7 @@ class addon_updater_updated_successful(bpy.types.Operator):
 				msg = updater.error_msg
 			else:
 				msg = self.error
-			col.label(str(msg), icon="BLANK1")
+			col.label(text=str(msg), icon="BLANK1")
 			rw = col.row()
 			rw.scale_y = 2
 			rw.operator("wm.url_open",
@@ -1211,8 +1211,10 @@ def select_link_function(self, tag):
 	# link = tag["zipball_url"]
 
 	# -- Example: select the first (or only) asset instead source code --
-	if "assets" in tag and "browser_download_url" in tag["assets"][0]:
+	if "assets" in tag and len(tag["assets"]) > 0 and "browser_download_url" in tag["assets"][0]:
 		link = tag["assets"][0]["browser_download_url"]
+	else:
+		link = tag["zipball_url"]
 
 	# -- Example: select asset based on OS, where multiple builds exist --
 	# # not tested/no error checking, modify to fit your own needs!
