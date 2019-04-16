@@ -27,8 +27,8 @@ from bpy.props import StringProperty
 # Addon imports
 from ..functions import *
 
-# define addon name (must match name in bl_info, no spaces)
-addon_name = "Interactive Physics Editor"
+# define addon name (must match name in bl_info, replace spaces with underscores)
+addon_name = "Interactive_Physics_Editor"
 
 class SCENE_OT_report_error(bpy.types.Operator):
     """Report a bug via an automatically generated issue ticket"""              # blender will use this as a tooltip for menu items and buttons.
@@ -41,7 +41,7 @@ class SCENE_OT_report_error(bpy.types.Operator):
 
     def execute(self, context):
         # set up file paths
-        libraryServersPath = os.path.join(getLibraryPath(), "error_log", self.txt_name)
+        libraryServersPath = os.path.join(get_addon_directory(), "error_log", self.txt_name)
         # write necessary debugging information to text file
         writeErrorToFile(libraryServersPath, bpy.data.texts[addon_name + " log"].as_string(), str(self.version)[1:-1], self.github_path)
         # open error report in UI with text editor

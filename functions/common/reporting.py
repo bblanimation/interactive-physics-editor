@@ -192,3 +192,4 @@ def writeErrorToFile(error_report_path:str, error_log:str, addon_version:str, gi
         f.write("\n" + error_log)
     except KeyError:
         f.write(" No exception found")
+    f.close()
