@@ -99,6 +99,8 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         self.objs = list(bpy.context.selected_objects)
         self.orig_scene = bpy.context.scene
         self.orig_frame = self.orig_scene.frame_current
+        self.orig_sync_mode = bpy.context.scene.sync_mode
+
         self.replace_end_frame = False
         self.matrices = {}
         self.selected_objects = []
@@ -132,13 +134,16 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
     def set_up_physics(self):
         self.sim_scene.phys_use_gravity = False
         self.sim_scene.use_gravity = False
+        self.sim_scene.sync_mode = 'NONE'
         #clear existing rigidbody
         bpy.ops.rigidbody.world_add()
 
         #potentially adjust these values
         rbw = self.sim_scene.rigidbody_world
         rbw.solver_iterations = 15
+        rbw.point_cache.frame_start = 1 #more time for sim.
         rbw.point_cache.frame_end = 500 #more time for sim.
+        self.sim_scene.frame_start = 1
         self.sim_scene.frame_end = 500
         self.sim_scene.frame_set(0)
 
@@ -195,6 +200,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             obj.lock_rotation_w = False
         bpy.app.handlers.frame_change_pre.remove(handle_edit_session_pre)
         bpy.app.handlers.frame_change_post.remove(handle_edit_session_post)
+        self.sim_scene.sync_mode = self.orig_sync_mode
 
     def cancel_interactive_sim(self):
         for obj in self.objs:
