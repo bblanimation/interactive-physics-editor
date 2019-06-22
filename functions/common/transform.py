@@ -129,15 +129,13 @@ def bounds(obj:Object, local:bool=False, use_adaptive_domain:bool=True):
 def setObjOrigin(obj:Object, loc:Vector):
     """ set object origin """
     l, r, s = obj.matrix_world.decompose()
-    l_mat = Matrix.Translation(l)
     r_mat = r.to_matrix().to_4x4()
     s_mat_x = Matrix.Scale(s.x, 4, Vector((1, 0, 0)))
     s_mat_y = Matrix.Scale(s.y, 4, Vector((0, 1, 0)))
     s_mat_z = Matrix.Scale(s.z, 4, Vector((0, 0, 1)))
     s_mat = mathutils_mult(s_mat_x, s_mat_y, s_mat_z)
-    m = obj.data
-    mx = mathutils_mult((obj.matrix_world.translation-loc), l_mat, r_mat, s_mat.inverted())
-    m.transform(Matrix.Translation(mx))
+    mx = mathutils_mult((obj.matrix_world.translation-loc), r_mat, s_mat.inverted())
+    obj.data.transform(Matrix.Translation(mx))
     obj.matrix_world.translation = loc
 
 

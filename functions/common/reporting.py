@@ -51,19 +51,17 @@ def stopwatch(text:str, startTime:float, endTime:float=None, precision:int=5):
 
 def updateProgressBars(printStatus:bool, cursorStatus:bool, cur_percent:float, old_percent:float, statusType:str, end:bool=False):
     """ print updated progress bar and update progress cursor """
-    if printStatus:
-        # print status to terminal
-        if cur_percent - old_percent > 0.001 and (cur_percent < 1 or end):
-            update_progress(statusType, cur_percent)
-            if cursorStatus and math.ceil(cur_percent*100) != math.ceil(old_percent*100):
-                wm = bpy.context.window_manager
-                if cur_percent == 0:
-                    wm.progress_begin(0, 100)
-                elif cur_percent < 1:
-                    wm.progress_update(math.floor(cur_percent*100))
-                else:
-                    wm.progress_end()
-            old_percent = cur_percent
+    if printStatus and cur_percent - old_percent > 0.001 and (cur_percent < 1 or end):
+        update_progress(statusType, cur_percent)
+        if cursorStatus and math.ceil(cur_percent*100) != math.ceil(old_percent*100):
+            wm = bpy.context.window_manager
+            if cur_percent == 0:
+                wm.progress_begin(0, 100)
+            elif cur_percent < 1:
+                wm.progress_update(math.floor(cur_percent*100))
+            else:
+                wm.progress_end()
+        old_percent = cur_percent
     return old_percent
 
 

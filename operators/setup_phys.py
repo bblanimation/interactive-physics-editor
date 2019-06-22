@@ -40,6 +40,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
 
     def modal(self, context, event):
         try:
+            # return {"PASS_THROUGH"}
             # close sim
             if event.type == "RET":
                 # ensure mouse is in 3D_VIEW
@@ -52,28 +53,29 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             elif event.type == "ESC":
                 self.cancel_interactive_sim()
                 return {"FINISHED"}
-            elif self.replace_end_frame and self.sim_scene.frame_current == 1:
+            elif self.sim_scene.frame_current == 1:
                 self.sim_scene.frame_end = 500
-                self.replace_end_frame = False
+            # handle undo
             elif event.type == "Z" and (event.oskey or event.ctrl):
                 self.report({"WARNING"}, "Undo not available for interactive simulation. Cancel all changes with the 'ESC' key")
                 return {"RUNNING_MODAL"}
+            # handle (de)select all
             elif b280() and event.type == "A" and event.value == "RELEASE":
                 self.sim_scene.frame_end = self.sim_scene.frame_current + 1
                 self.replace_end_frame = True
-            # block left_click if not in 3D viewport
             elif event.type in ("LEFTMOUSE", "RIGHTMOUSE"):
                 space, i = get_quadview_index(context, event.mouse_x, event.mouse_y)
+                # block left_click if not in 3D viewport
                 if space is None:
                     return {"RUNNING_MODAL"}
+                # update animation
                 elif event.value == "RELEASE":
-                    # if event.type == "LEFTMOUSE":
-                    self.sim_scene.frame_end = self.sim_scene.frame_current + 1
-                    self.replace_end_frame = True
-                    # elif event.type == "RIGHTMOUSE":
-                    #     bpy.ops.screen.animation_cancel()
-                    #     self.sim_scene.frame_set(0)
-                    #     bpy.ops.screen.animation_play()
+                    if event.type == "LEFTMOUSE":
+                        self.sim_scene.frame_end = self.sim_scene.frame_current + 1
+                    elif event.type == "RIGHTMOUSE":
+                        bpy.ops.screen.animation_cancel()
+                        self.sim_scene.frame_set(0)
+                        bpy.ops.screen.animation_play()
             return {"PASS_THROUGH"}
         except:
             interactive_physics_handle_exception()
@@ -167,6 +169,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             obj.lock_rotation_w = True
 
             rb = obj.rigid_body
+            # rb.kinematic = True
             rb.friction = 0.1
             rb.use_margin = True
             rb.collision_margin = 0
@@ -176,6 +179,8 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             rb.angular_damping = 0.9
             rb.mass = 3
             deselect(obj)
+            obj.data.update()
+        update_depsgraph()
 
         bpy.app.handlers.frame_change_pre.append(handle_edit_session_pre)
         bpy.app.handlers.frame_change_post.append(handle_edit_session_post)
@@ -188,13 +193,13 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             self.matrices[obj.name] = obj.matrix_world.copy()
         bpy.ops.rigidbody.objects_remove()
         bpy.ops.screen.animation_cancel()
-        self.sim_scene.frame_set(self.orig_frame)
         set_active_scene(self.orig_scene)
         bpy.data.scenes.remove(self.sim_scene)
+        self.orig_scene.frame_set(self.orig_frame)
         bpy_collections().remove(bpy_collections().get(collection_name))
         for obj in self.objs:
             obj.matrix_world = self.matrices[obj.name]
-        self.orig_scene.update()
+        update_depsgraph()
         for obj in self.objs:
             obj.lock_rotations_4d = False
             obj.lock_rotation = [False]*3

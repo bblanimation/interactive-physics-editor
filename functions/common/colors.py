@@ -32,7 +32,7 @@ def getSaturationMatrix(s:float):
 
 
 def gammaCorrect(rgba:list, val:float):
-    """ camma correct color by value """
+    """ gamma correct color by value """
     r, g, b, a = rgba
     r = math.pow(r, val)
     g = math.pow(g, val)

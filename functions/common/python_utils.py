@@ -22,6 +22,8 @@ import operator
 import hashlib
 import numpy as np
 import sys
+import zlib
+import binascii
 from io import StringIO
 
 # Blender imports
@@ -125,6 +127,18 @@ def hash_str(string:str):
     return hashlib.md5(string.encode()).hexdigest()
 
 
+def compress_str(string:str):
+    compressed_str = zlib.compress(string.encode('utf-8'))
+    compressed_str = binascii.hexlify(compressed_str)
+    return compressed_str.decode()
+
+
+def decompress_str(string:str):
+    decompressed_str = binascii.unhexlify(string)
+    decompressed_str = zlib.decompress(decompressed_str)
+    return decompressed_str.decode()
+
+
 def str_to_bool(s:str):
     if s.lower() == 'true':
         return True
@@ -201,7 +215,6 @@ class Suppressor(object):
 
 
 class Capturing(list):
-    """ capture stdout output to variable """
     def __enter__(self):
         self._stdout = sys.stdout
         sys.stdout = self._stringio = StringIO()
