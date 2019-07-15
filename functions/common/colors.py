@@ -1,4 +1,4 @@
-# Copyright (C) 2019 Christopher Gearhart
+# Copyright (C) 2020 Christopher Gearhart
 # chris@bblanimation.com
 # http://bblanimation.com/
 #
@@ -23,7 +23,7 @@ import bpy
 from mathutils import Matrix
 
 
-def getSaturationMatrix(s:float):
+def get_saturation_matrix(s:float):
     """ returns saturation matrix from saturation value """
     sr = (1 - s) * 0.3086  # or 0.2125
     sg = (1 - s) * 0.6094  # or 0.7154
@@ -31,7 +31,7 @@ def getSaturationMatrix(s:float):
     return Matrix(((sr + s, sr, sr), (sg, sg + s, sg), (sb, sb, sb + s)))
 
 
-def gammaCorrect(rgba:list, val:float):
+def gamma_correct(rgba:list, val:float):
     """ gamma correct color by value """
     r, g, b, a = rgba
     r = math.pow(r, val)
