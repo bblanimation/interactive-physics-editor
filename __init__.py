@@ -19,7 +19,7 @@ bl_info = {
     "name"        : "Interactive Physics Editor",
     "author"      : "Christopher Gearhart <chris@bblanimation.com> & Patrick Moore <patrick@d3tool.com>",
     "version"     : (1, 1, 2),
-    "blender"     : (2, 79, 0),
+    "blender"     : (2, 80, 0),
     "description" : "Simplifies the process of positioning multiple objects in 3D space with collision handling",
     "location"    : "View 3D > Tools > Physics > Interactive Physics Editor",
     "warning"     : "",  # used for warning icon and text in addons panel
@@ -32,17 +32,17 @@ import bpy
 from bpy.types import Scene
 
 # Addon imports
-from .lib.classesToRegister import *
+from .lib.classes_to_register import *
 from .functions.common import *
 from . import addon_updater_ops
 
 # property update functions
 def update_lock_loc(scene, context):
     for obj in scene.objects:
-        obj.lock_location = (scene.phys_lock_loc_x, scene.phys_lock_loc_y, scene.phys_lock_loc_z)
+        obj.lock_location = scene.phys_lock_loc
 def update_lock_rot(scene, context):
     for obj in scene.objects:
-        obj.lock_rotation = (scene.phys_lock_rot_x, scene.phys_lock_rot_y, scene.phys_lock_rot_z)
+        obj.lock_rotation = scene.phys_lock_rot
 def update_collision_margin(scene, context):
     for obj in scene.objects:
         obj.rigid_body.collision_margin = scene.phys_collision_margin
@@ -58,12 +58,18 @@ def register():
         make_annotations(cls)
         bpy.utils.register_class(cls)
     # register properties
-    Scene.phys_lock_loc_x = BoolProperty(name="Lock X", default=False, update=update_lock_loc)
-    Scene.phys_lock_loc_y = BoolProperty(name="Lock Y", default=False, update=update_lock_loc)
-    Scene.phys_lock_loc_z = BoolProperty(name="Lock Z", default=False, update=update_lock_loc)
-    Scene.phys_lock_rot_x = BoolProperty(name="Lock X", default=True, update=update_lock_rot)
-    Scene.phys_lock_rot_y = BoolProperty(name="Lock Y", default=True, update=update_lock_rot)
-    Scene.phys_lock_rot_z = BoolProperty(name="Lock Z", default=True, update=update_lock_rot)
+    Scene.phys_lock_loc = BoolVectorProperty(
+        name="Lock",
+        size=3,
+        subtype="XYZ",
+        default=(False, False, False),
+        update=update_lock_loc)
+    Scene.phys_lock_rot = BoolVectorProperty(
+        name="Lock",
+        size=3,
+        subtype="XYZ",
+        default=(True, True, True),
+        update=update_lock_rot)
     Scene.phys_collision_margin = FloatProperty(name="Collision Margin", default=0.0, min=-1, max=1, step=1, update=update_collision_margin)
     Scene.phys_collision_shape = EnumProperty(name="Collision Shape", items=(("CONVEX_HULL", "Convex (fast)", "Objects collide with other objects using a convex collision shape"), ("MESH", "Concave", "Objects collide with other objects using a concave collision shape (best for hollow objects)")), default="CONVEX_HULL", update=update_collision_shape)
     Scene.phys_use_gravity = BoolProperty(name="Use Gravity", default=False, update=update_enable_gravity)
@@ -77,12 +83,8 @@ def unregister():
     del Scene.phys_use_gravity
     del Scene.phys_collision_shape
     del Scene.phys_collision_margin
-    del Scene.phys_lock_rot_z
-    del Scene.phys_lock_rot_y
-    del Scene.phys_lock_rot_x
-    del Scene.phys_lock_loc_z
-    del Scene.phys_lock_loc_y
-    del Scene.phys_lock_loc_x
+    del Scene.phys_lock_rot
+    del Scene.phys_lock_loc
     # unregister classes
     for cls in classes:
         bpy.utils.unregister_class(cls)

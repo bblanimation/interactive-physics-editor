@@ -18,7 +18,7 @@
 from ..operators.setup_phys import *
 from ..ui import *
 from .preferences import *
-from .reportError import *
+from .report_error import *
 from .. import addon_updater_ops
 
 classes = (
@@ -26,6 +26,7 @@ classes = (
     PHYSICS_OT_setup_interactive_sim,
     # interactive_physics_editor/ui
     PHYSICS_PT_interactive_editor,
+    PHYSICS_PT_interactive_editor_gravity,
     # interactive_physics_editor/lib
     INTERPHYS_PT_preferences,
     SCENE_OT_report_error,

@@ -31,6 +31,11 @@ class PHYSICS_PT_interactive_editor(Panel):
     bl_context     = "objectmode"
     bl_category    = "Physics"
 
+    @classmethod
+    def poll(self, context):
+        """ ensures operator can execute (if not, returns false) """
+        return True
+
     def draw(self, context):
         layout = self.layout
         scn = context.scene
@@ -48,39 +53,57 @@ class PHYSICS_PT_interactive_editor(Panel):
         if context.scene.name != "Interactive Physics Session":
             col.operator("physics.setup_interactive_sim", text="New Interactive Physics Session", icon="PHYSICS")
         else:
+            row = col.row(align=True)
             col.label(text="Object Behavior:")
-            split = col.split(align=True)
-            col = split.column(align=True)
-            col.operator("rigidbody.objects_add", text="Make Active").type = 'ACTIVE'
-            col = split.column(align=True)
-            col.operator("rigidbody.objects_add", text="Make Passive").type = 'PASSIVE'
+            row = col.row(align=False)
+            row.operator("rigidbody.objects_add", text="Make Active").type = 'ACTIVE'
+            row = col.row(align=False)
+            row.operator("rigidbody.objects_add", text="Make Passive").type = 'PASSIVE'
             col = layout.column(align=True)
             col.label(text="Collision Shape:")
-            col.prop(scn, "phys_collision_shape", text="")
-
-            col = layout.column(align=True)
-            split = col.split(align=True)
-            col = split.column(align=True)
-            col.label(text="Location")
-            col.prop(scn, "phys_lock_loc_x")
-            col.prop(scn, "phys_lock_loc_y")
-            col.prop(scn, "phys_lock_loc_z")
-            col = split.column(align=True)
-            col.label(text="Rotation")
-            col.prop(scn, "phys_lock_rot_x")
-            col.prop(scn, "phys_lock_rot_y")
-            col.prop(scn, "phys_lock_rot_z")
-
-            col = layout.column(align=True)
-            col.prop(scn, "phys_collision_margin")
-            col = layout.column(align=True)
-            col.prop(scn, "phys_use_gravity", text="Enable Gravity")
             row = col.row(align=True)
-            row.active = scn.use_gravity
-            row.prop(scn, "gravity", text="")
+            row.prop(scn, "phys_collision_shape", text="")
+            row = col.row(align=True)
+            row.prop(scn, "phys_collision_margin", text="Margin")
+
+            col = layout.column(align=True)
+            row = col.row(align=True)
+            row.label(text="Lock Location:")
+            row = col.row(align=True)
+            row.prop(scn, "phys_lock_loc", toggle=True, text="")
+            col = layout.column(align=True)
+            row = col.row(align=True)
+            row.label(text="Lock Rotation:")
+            row = col.row(align=True)
+            row.prop(scn, "phys_lock_rot", toggle=True, text="")
 
             layout.split()
             col = layout.column(align=True)
             col.scale_y = 0.7
             col.label(text="Press 'RETURN' to commit")
             col.label(text="Press 'ESC' to cancel")
+
+
+class PHYSICS_PT_interactive_editor_gravity(Panel):
+    bl_space_type  = "VIEW_3D"
+    bl_region_type = "UI" if b280() else "TOOLS"
+    bl_label       = "Gravity"
+    bl_parent_id   = "PHYSICS_PT_interactive_editor"
+    bl_idname      = "PHYSICS_PT_interactive_editor_gravity"
+    bl_context     = "objectmode"
+    bl_category    = "Physics"
+    bl_options     = {"DEFAULT_CLOSED"}
+
+    def draw_header(self, context):
+        scn = context.scene
+        self.layout.prop(scn, "phys_use_gravity", text="")
+
+    def draw(self, context):
+        layout = self.layout
+        scn = context.scene
+
+        col = layout.column(align=True)
+        # col.prop(scn, "phys_use_gravity", text="Enable Gravity")
+        # row = col.row(align=True)
+        col.active = scn.use_gravity and scn.phys_use_gravity
+        col.prop(scn, "gravity", text="")
