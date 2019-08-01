@@ -17,7 +17,6 @@
 
 # System imports
 import os
-import numpy as np
 from math import *
 
 # Blender imports
@@ -193,6 +192,14 @@ def deselect_all():
 
 
 @blender_version_wrapper("<=","2.79")
+def is_selected(obj):
+    return obj.select
+@blender_version_wrapper(">=","2.80")
+def is_selected(obj):
+    return obj.select_get()
+
+
+@blender_version_wrapper("<=","2.79")
 def hide(obj:Object, viewport:bool=True, render:bool=True):
     if not obj.hide and viewport:
         obj.hide = True
@@ -220,6 +227,10 @@ def unhide(obj:Object, viewport:bool=True, render:bool=True):
         obj.hide_render = False
 
 
+@blender_version_wrapper("<=","2.79")
+def is_obj_visible_in_viewport(obj:Object):
+    scn = bpy.context.scene
+    return any([obj.layers[i] and scn.layers[i] for i in range(20)])
 @blender_version_wrapper(">=","2.80")
 def is_obj_visible_in_viewport(obj:Object):
     if obj is None:
@@ -405,14 +416,14 @@ def change_context(context, areaType:str):
     return last_area_type
 
 
-def assemble_override_context_for_view_3d_ops():
+def assemble_override_context(area_type="VIEW_3D"):
     """
     Iterates through the blender GUI's areas & regions to find the View3D space
     NOTE: context override can only be used with bpy.ops that were called from a window/screen with a view3d space
     """
     win      = bpy.context.window
     scr      = win.screen
-    areas3d  = [area for area in scr.areas if area.type == "VIEW_3D"]
+    areas3d  = [area for area in scr.areas if area.type == area_type]
     region   = [region for region in areas3d[0].regions if region.type == "WINDOW"]
     override = {"window": win,
                 "screen": scr,
@@ -565,3 +576,48 @@ def make_annotations(cls):
             annotations[k] = v
             delattr(cls, k)
     return cls
+
+
+@blender_version_wrapper("<=","2.79")
+def get_annotations(cls):
+    return list(dict(cls).keys())
+@blender_version_wrapper(">=","2.80")
+def get_annotations(cls):
+    return cls.__annotations__
+
+
+def append_from(blendfile_path, attr, filename):
+    directory = os.path.join(blendfile_path, attr)
+    filepath = os.path.join(directory, filename)
+    bpy.ops.wm.append(
+        filepath=filepath,
+        filename=filename,
+        directory=directory)
+
+
+def append_all_from(blendfile_path, attr, overwrite_data=False):
+    data_block_infos = list()
+    orig_data_names = lambda: None
+    with bpy.data.libraries.load(blendfile_path) as (data_from, data_to):
+        setattr(data_to, attr, getattr(data_from, attr))
+        # store copies of loaded attributes to 'orig_data_names' object
+        if overwrite_data:
+            attrib = getattr(data_from, attr)
+            if len(attrib) > 0:
+                setattr(orig_data_names, attr, attrib.copy())
+    # overwrite existing data with loaded data of the same name
+    if overwrite_data:
+        # get attributes to remap
+        source_attr = getattr(orig_data_names, attr)
+        target_attr = getattr(data_to, attr)
+        for i, data_name in enumerate(source_attr):
+            # check that the data doesn't match
+            if not hasattr(target_attr[i], "name") or target_attr[i].name == data_name or not hasattr(bpy.data, attr): continue
+            # remap existing data to loaded data
+            data_attr = getattr(bpy.data, attr)
+            data_attr.get(data_name).user_remap(target_attr[i])
+            # remove remapped existing data
+            data_attr.remove(data_attr.get(data_name))
+            # rename loaded data to original name
+            target_attr[i].name = data_name
+    return data_to

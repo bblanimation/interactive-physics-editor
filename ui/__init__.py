@@ -92,7 +92,12 @@ class PHYSICS_PT_interactive_editor_gravity(Panel):
     bl_idname      = "PHYSICS_PT_interactive_editor_gravity"
     bl_context     = "objectmode"
     bl_category    = "Physics"
-    bl_options     = {"DEFAULT_CLOSED"}
+    # bl_options     = {"DEFAULT_CLOSED"}
+
+    @classmethod
+    def poll(self, context):
+        """ ensures operator can execute (if not, returns false) """
+        return context.scene.name == "Interactive Physics Session"
 
     def draw_header(self, context):
         scn = context.scene

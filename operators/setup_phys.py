@@ -41,6 +41,14 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
     def modal(self, context, event):
         try:
             # return {"PASS_THROUGH"}
+            if self.selected_objs != bpy.context.selected_objects:
+                self.selected_objs = bpy.context.selected_objects
+                for obj in context.scene.collection.all_objects:
+                    if b280():
+                        obj.rigid_body.kinematic = obj.select_get()
+                    else:
+                        obj.rigid_body.kinematic = obj.select
+
             # close sim
             if event.type == "RET":
                 # ensure mouse is in 3D_VIEW
@@ -87,6 +95,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             self.add_to_new_scene()
             self.set_up_physics()
             bpy.ops.screen.animation_play()
+            # return {"FINISHED"}
             context.window_manager.modal_handler_add(self)
             return {'RUNNING_MODAL'}
         except:
@@ -99,6 +108,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
 
     def __init__(self):
         self.objs = list(bpy.context.selected_objects)
+        self.selected_objs = self.objs.copy()
         self.orig_scene = bpy.context.scene
         self.orig_frame = self.orig_scene.frame_current
 

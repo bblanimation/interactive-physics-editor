@@ -31,7 +31,7 @@ def get_saturation_matrix(s:float):
     return Matrix(((sr + s, sr, sr), (sg, sg + s, sg), (sb, sb, sb + s)))
 
 
-def gamma_correct(rgba:list, val:float):
+def gamma_correct(rgba:list, val:float=2.0167):
     """ gamma correct color by value """
     r, g, b, a = rgba
     r = math.pow(r, val)
