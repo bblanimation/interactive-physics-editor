@@ -50,11 +50,6 @@ class PHYSICS_PT_interactive_editor_object_behavior(Panel):
         obj = bpy.context.active_object
 
         col = layout.column(align=True)
-        col.operator("physics.apply_settings_to_selected")
-
-        layout.separator()
-
-        col = layout.column(align=True)
         col.label(text="Rigid Body Type:")
         row = col.row(align=True)
         row.prop(obj.rigid_body, "type", text="")
@@ -95,3 +90,8 @@ class PHYSICS_PT_interactive_editor_object_behavior(Panel):
         col.label(text="Lock Rotation:")
         row = col.row(align=True)
         row.prop(scn.physics, "lock_rot", toggle=True, text="")
+
+        layout.separator()
+
+        col = layout.column(align=True)
+        col.operator("physics.apply_settings_to_selected")

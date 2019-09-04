@@ -31,7 +31,7 @@ classes = (
     PHYSICS_OT_apply_settings_to_selected,
     # ui
     PHYSICS_PT_interactive_editor,
-    PHYSICS_PT_interactive_editor_object_behavior,
+    # PHYSICS_PT_interactive_editor_object_behavior,
     PHYSICS_PT_interactive_editor_gravity,
     PHYSICS_PT_interactive_editor_limit_location,
     PHYSICS_PT_interactive_editor_limit_rotation,

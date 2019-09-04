@@ -101,7 +101,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         try:
             self.add_to_new_scene()
             self.set_up_physics()
-            self.add_constraints()
+            add_constraints(self.objs)
             bpy.ops.screen.animation_play()
             context.window_manager.modal_handler_add(self)
             return {"RUNNING_MODAL"}
@@ -205,36 +205,6 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         bpy.app.handlers.frame_change_pre.append(handle_edit_session_pre)
         bpy.app.handlers.frame_change_post.append(handle_edit_session_post)
 
-    def add_constraints(self):
-        for obj in self.objs:
-            if obj.type != "MESH": continue
-
-            limit = obj.constraints.get("Limit Location")
-            if limit is not None:
-                obj.constraints.remove(limit)
-            limit = obj.constraints.new("LIMIT_LOCATION")
-
-            imx = obj.matrix_world.inverted()
-            world_loc = obj.matrix_world.to_translation()
-            rot = obj.matrix_world.to_quaternion()
-
-            X = world_loc.dot(mathutils_mult(rot, Vector((1,0,0))))
-            Y = world_loc.dot(mathutils_mult(rot, Vector((0,1,0))))
-            Z = world_loc.dot(mathutils_mult(rot, Vector((0,0,1))))
-
-            limit.use_min_x = True
-            limit.use_min_y = True
-            limit.use_min_z = True
-            limit.use_max_x = True
-            limit.use_max_y = True
-            limit.use_max_z = True
-            limit.use_transform_limit = False
-
-            limit.owner_space = "LOCAL"
-            limit.min_x, limit.max_x = X - 1, X + 1
-            limit.min_y, limit.max_y = Y - 1, Y + 1
-            limit.min_z, limit.max_z = Z - 1, Z + 1
-
     def close_interactive_sim(self):
         self.ui_end()
         if self.sim_scene is None:
@@ -255,6 +225,12 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             obj.lock_rotation = [False]*3
             obj.lock_location = [False]*3
             obj.lock_rotation_w = False
+            limit1 = obj.constraints.get("Limit Location")
+            if limit1 is not None:
+                obj.constraints.remove(limit1)
+            limit2 = obj.constraints.get("Limit Rotation")
+            if limit2 is not None:
+                obj.constraints.remove(limit2)
         bpy.app.handlers.frame_change_pre.remove(handle_edit_session_pre)
         bpy.app.handlers.frame_change_post.remove(handle_edit_session_post)
 

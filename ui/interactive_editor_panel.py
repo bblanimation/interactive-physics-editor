@@ -56,6 +56,55 @@ class PHYSICS_PT_interactive_editor(Panel):
         if context.scene.name != "Interactive Physics Session":
             col.operator("physics.setup_interactive_sim", text="New Interactive Physics Session", icon="PHYSICS")
         else:
+            obj = bpy.context.active_object
+
+            col = layout.column(align=True)
+            col.label(text="Rigid Body Type:")
+            row = col.row(align=True)
+            row.prop(obj.rigid_body, "type", text="")
+
+            # layout.separator()
+
+            col = layout.column(align=True)
+            col.label(text="Collision Shape:")
+            col.prop(obj.rigid_body, "collision_shape", text="")
+            col.prop(obj.rigid_body, "collision_margin", text="Margin")
+
+            layout.separator()
+
+            # split = layout_split(layout, factor=0.8, align=True)
+            # col = split.column(align=True)
+            # col.prop(obj, "lock_location")
+            # col = split.column(align=True)
+            # col.label(text="")
+            # col.label(text="(X)")
+            # col.label(text="(Y)")
+            # col.label(text="(Z)")
+            #
+            # split = layout_split(layout, factor=0.8, align=True)
+            # col = split.column(align=True)
+            # col.prop(obj, "lock_rotation")
+            # col = split.column(align=True)
+            # col.label(text="")
+            # col.label(text="(X)")
+            # col.label(text="(Y)")
+            # col.label(text="(Z)")
+
+            col = layout.column(align=True)
+            col.label(text="Lock Location:")
+            row = col.row(align=True)
+            row.prop(scn.physics, "lock_loc", toggle=True, text="")
+
+            col = layout.column(align=True)
+            col.label(text="Lock Rotation:")
+            row = col.row(align=True)
+            row.prop(scn.physics, "lock_rot", toggle=True, text="")
+
+            layout.separator()
+
+            col = layout.column(align=True)
+            col.operator("physics.apply_settings_to_selected")
+
             layout.split()
             col = layout.column(align=True)
             col.scale_y = 0.7

@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from .common import *
+from .general import *
 
 
 def update_lock_loc(self, context):
@@ -45,6 +46,24 @@ def update_enable_gravity(self, context):
 
 def update_constraint(self, context):
     scn = bpy.context.scene
-    constraints = [obj.constraints["Limit Location"] for obj in scn.objects if "Limit Location" in obj.constraints]
-    for constraint in constraints:
-        setattr(constraint, )
+    objs = [obj for obj in scn.objects if "Limit Location" in obj.constraints]
+    limit_location = scn.physics.limit_location
+    use_limits = [
+        limit_location.use_min_x,
+        limit_location.use_min_y,
+        limit_location.use_min_z,
+        limit_location.use_max_x,
+        limit_location.use_max_y,
+        limit_location.use_max_z,
+    ]
+    min_shift = [
+        limit_location.min_x,
+        limit_location.min_y,
+        limit_location.min_z,
+    ]
+    max_shift = [
+        limit_location.max_x,
+        limit_location.max_y,
+        limit_location.max_z,
+    ]
+    add_constraints(objs, min_shift=min_shift, max_shift=max_shift, use_limits=use_limits)
