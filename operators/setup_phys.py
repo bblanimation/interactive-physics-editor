@@ -26,10 +26,10 @@ from ..functions.common import *
 from ..app_handlers import *
 
 class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
-    '''Switch to new scene and set up for rigid body physics simulation'''
+    """Switch to new scene and set up for rigid body physics simulation"""
     bl_idname = "physics.setup_interactive_sim"
     bl_label = "Setup New Physics Scene for Simulation"
-    bl_options = {'REGISTER','UNDO'}
+    bl_options = {"REGISTER","UNDO"}
 
     ################################################
     # Blender Operator methods
@@ -40,17 +40,24 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
 
     def modal(self, context, event):
         try:
+            scn = bpy.context.scene
             # return {"PASS_THROUGH"}
             if self.selected_objs != bpy.context.selected_objects:
                 self.selected_objs = bpy.context.selected_objects
                 for obj in context.scene.collection.all_objects:
+                    if obj.rigid_body is None:
+                        continue
                     if b280():
                         obj.rigid_body.kinematic = obj.select_get()
                     else:
                         obj.rigid_body.kinematic = obj.select
+            if self.active_object != bpy.context.active_object:
+                self.active_object = bpy.context.active_object
+                scn.physics.lock_loc = self.active_object.lock_location
+                scn.physics.lock_rot = self.active_object.lock_rotation
 
             # close sim
-            if event.type == "RET":
+            elif event.type == "RET":
                 # ensure mouse is in 3D_VIEW
                 space, i = get_quadview_index(context, event.mouse_x, event.mouse_y)
                 if space in (None, "UI" if b280() else "TOOLS"):
@@ -94,23 +101,25 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         try:
             self.add_to_new_scene()
             self.set_up_physics()
+            self.add_constraints()
             bpy.ops.screen.animation_play()
-            # return {"FINISHED"}
             context.window_manager.modal_handler_add(self)
-            return {'RUNNING_MODAL'}
+            return {"RUNNING_MODAL"}
         except:
             interactive_physics_handle_exception()
             self.close_interactive_sim()
-            return {'CANCELLED'}
+            return {"CANCELLED"}
 
     ################################################
     # initialization method
 
     def __init__(self):
+        self.active_object = bpy.context.active_object
         self.objs = list(bpy.context.selected_objects)
         self.selected_objs = self.objs.copy()
         self.orig_scene = bpy.context.scene
         self.orig_frame = self.orig_scene.frame_current
+        self.active_screen = bpy.context.screen
 
         self.replace_end_frame = False
         self.matrices = {}
@@ -133,9 +142,9 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         set_active_scene(self.sim_scene)
 
         # set new scene properties
-        self.sim_scene.phys_use_gravity = False
+        self.sim_scene.physics.use_gravity = False
         self.sim_scene.use_gravity = False
-        self.sim_scene.sync_mode = 'NONE'
+        self.sim_scene.sync_mode = "NONE"
 
         # TODO Clear existing objects and any physics cache
         for ob in self.sim_scene.objects:
@@ -145,10 +154,11 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             link_object(obj, scene=self.sim_scene)
             select(obj, active=True)
 
-        # bpy.ops.object.make_single_user(type='SELECTED_OBJECTS', object=True, obdata=False)
+        # bpy.ops.object.make_single_user(type="SELECTED_OBJECTS", object=True, obdata=False)
         bpy.ops.object.visual_transform_apply()
 
     def set_up_physics(self):
+        scn = bpy.context.scene
         # add rigid body world to new scene
         bpy.ops.rigidbody.world_add()
 
@@ -183,7 +193,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             rb.friction = 0.1
             rb.use_margin = True
             rb.collision_margin = 0
-            rb.collision_shape = bpy.context.scene.phys_collision_shape
+            rb.collision_shape = scn.physics.collision_shape
             rb.restitution = 0
             rb.linear_damping = 1
             rb.angular_damping = 0.9
@@ -194,6 +204,36 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
 
         bpy.app.handlers.frame_change_pre.append(handle_edit_session_pre)
         bpy.app.handlers.frame_change_post.append(handle_edit_session_post)
+
+    def add_constraints(self):
+        for obj in self.objs:
+            if obj.type != "MESH": continue
+
+            limit = obj.constraints.get("Limit Location")
+            if limit is not None:
+                obj.constraints.remove(limit)
+            limit = obj.constraints.new("LIMIT_LOCATION")
+
+            imx = obj.matrix_world.inverted()
+            world_loc = obj.matrix_world.to_translation()
+            rot = obj.matrix_world.to_quaternion()
+
+            X = world_loc.dot(mathutils_mult(rot, Vector((1,0,0))))
+            Y = world_loc.dot(mathutils_mult(rot, Vector((0,1,0))))
+            Z = world_loc.dot(mathutils_mult(rot, Vector((0,0,1))))
+
+            limit.use_min_x = True
+            limit.use_min_y = True
+            limit.use_min_z = True
+            limit.use_max_x = True
+            limit.use_max_y = True
+            limit.use_max_z = True
+            limit.use_transform_limit = False
+
+            limit.owner_space = "LOCAL"
+            limit.min_x, limit.max_x = X - 1, X + 1
+            limit.min_y, limit.max_y = Y - 1, Y + 1
+            limit.min_z, limit.max_z = Z - 1, Z + 1
 
     def close_interactive_sim(self):
         self.ui_end()

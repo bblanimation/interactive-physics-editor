@@ -15,5 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from .interactive_editor_panel import *
-from .object_properties_panel import *
+__all__ = [
+    "property_groups",
+    "classes_to_register",
+    "preferences",
+    "report_error",
+]
