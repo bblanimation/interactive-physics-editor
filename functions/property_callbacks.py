@@ -46,14 +46,25 @@ def update_enable_gravity(self, context):
     scn.use_gravity = self.use_gravity
 
 
-def update_constraint(self, context):
+def update_loc_tolerance(self, context):
     scn = bpy.context.scene
     obj = context.object
-    limit_location = obj.limit_location
     constraint = obj.constraints.get("Limit Location")
     median_limit = Vector((
         statistics.median((constraint.max_x, constraint.min_x)),
         statistics.median((constraint.max_y, constraint.min_y)),
         statistics.median((constraint.max_z, constraint.min_z)),
     ))
-    update_constraints(constraint, median_limit, limit_location.tolerance)
+    update_loc_constraint(obj, constraint, median_limit)
+
+
+def update_rot_tolerance(self, context):
+    scn = bpy.context.scene
+    obj = context.object
+    constraint = obj.constraints.get("Limit Rotation")
+    median_limit = Vector((
+        statistics.median((constraint.max_x, constraint.min_x)),
+        statistics.median((constraint.max_y, constraint.min_y)),
+        statistics.median((constraint.max_z, constraint.min_z)),
+    ))
+    update_rot_constraint(obj, constraint, median_limit)

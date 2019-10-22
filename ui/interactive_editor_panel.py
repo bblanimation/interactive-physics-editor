@@ -157,36 +157,29 @@ class PHYSICS_PT_interactive_editor_limit_location(Panel):
 
     def draw(self, context):
         layout = self.layout
-        scn = context.scene
         obj = context.object
 
-        # col = layout.column(align=True)
-        # col.label(text="Lock Location:")
-        # row = col.row(align=True)
-        # row.prop(obj, "lock_loc", toggle=True, text="")
-        #
-        # col = layout.column(align=True)
-        # col.label(text="Tolerance:")
+        layout.prop(obj.constraints["Limit Location"], "owner_space", text="Convert")
 
         row = layout.row(align=False)
         col = row.column(align=True)
         col.active = not obj.lock_location[0]
-        col.prop(obj.limit_location, "tolerance", text="Tol X", index=0)
+        col.prop(obj.limit_location, "loc_tolerance", text="Tol X", index=0)
         row.prop(obj, "lock_location", text="", index=0)
 
         row = layout.row(align=False)
         col = row.column(align=True)
         col.active = not obj.lock_location[1]
-        col.prop(obj.limit_location, "tolerance", text="Tol Y", index=1)
+        col.prop(obj.limit_location, "loc_tolerance", text="Tol Y", index=1)
         row.prop(obj, "lock_location", text="", index=1)
 
         row = layout.row(align=False)
         col = row.column(align=True)
         col.active = not obj.lock_location[2]
-        col.prop(obj.limit_location, "tolerance", text="Tol Z", index=2)
+        col.prop(obj.limit_location, "loc_tolerance", text="Tol Z", index=2)
         row.prop(obj, "lock_location", text="", index=2)
 
-        layout.operator("physics.recenter_tolerance_at_origin", icon="OBJECT_ORIGIN")
+        layout.operator("physics.recenter_tolerance_at_origin", icon="OBJECT_ORIGIN").loc = True
 
 
 class PHYSICS_PT_interactive_editor_limit_rotation(Panel):
@@ -214,29 +207,24 @@ class PHYSICS_PT_interactive_editor_limit_rotation(Panel):
 
     def draw(self, context):
         layout = self.layout
-        scn = context.scene
+        obj = context.object
 
-        col = layout.column(align=True)
-        col.label(text="Lock Rotation:")
-        row = col.row(align=True)
-        row.prop(scn.physics, "lock_rot", toggle=True, text="")
+        row = layout.row(align=False)
+        col = row.column(align=True)
+        col.active = not obj.lock_rotation[0]
+        col.prop(obj.limit_location, "rot_tolerance", text="Tol X", index=0)
+        row.prop(obj, "lock_rotation", text="", index=0)
 
-        # col = layout.column()
-        # row = col.row()
-        # row.prop(scn.physics.limit_rotation, "use_min_x")
-        # row.prop(scn.physics.limit_rotation, "use_min_y")
-        # row.prop(scn.physics.limit_rotation, "use_min_z")
-        # row = col.row()
-        # row.prop(scn.physics.limit_rotation, "min_x")
-        # row.prop(scn.physics.limit_rotation, "min_y")
-        # row.prop(scn.physics.limit_rotation, "min_z")
-        #
-        # col = layout.column()
-        # row = col.row()
-        # row.prop(scn.physics.limit_rotation, "use_max_x")
-        # row.prop(scn.physics.limit_rotation, "use_max_y")
-        # row.prop(scn.physics.limit_rotation, "use_max_z")
-        # row = col.row()
-        # row.prop(scn.physics.limit_rotation, "max_x")
-        # row.prop(scn.physics.limit_rotation, "max_y")
-        # row.prop(scn.physics.limit_rotation, "max_z")
+        row = layout.row(align=False)
+        col = row.column(align=True)
+        col.active = not obj.lock_rotation[1]
+        col.prop(obj.limit_location, "rot_tolerance", text="Tol Y", index=1)
+        row.prop(obj, "lock_rotation", text="", index=1)
+
+        row = layout.row(align=False)
+        col = row.column(align=True)
+        col.active = not obj.lock_rotation[2]
+        col.prop(obj.limit_location, "rot_tolerance", text="Tol Z", index=2)
+        row.prop(obj, "lock_rotation", text="", index=2)
+
+        layout.operator("physics.recenter_tolerance_at_origin", icon="OBJECT_ORIGIN").rot = True

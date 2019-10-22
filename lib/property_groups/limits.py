@@ -24,37 +24,15 @@ from ...functions.property_callbacks import *
 
 
 class LimitProperties(bpy.types.PropertyGroup):
-    use_tolerance = BoolVectorProperty(
-        name="Use Tolerance",
-        update=update_constraint,
-    )
-    tolerance = FloatVectorProperty(
+    loc_tolerance = FloatVectorProperty(
         name="Tolerance for location constraint (0 to disable)",
         subtype="TRANSLATION",
         unit="LENGTH",
-        update=update_constraint,
+        update=update_loc_tolerance,
     )
-    use_max_x = BoolProperty(
-        name="Max X",
-        update=update_constraint,
-    )
-    use_max_y = BoolProperty(
-        name="Max Y",
-        update=update_constraint,
-    )
-    use_max_z = BoolProperty(
-        name="Max Z",
-        update=update_constraint,
-    )
-    max_x = FloatProperty(
-        name="",
-        update=update_constraint,
-    )
-    max_y = FloatProperty(
-        name="",
-        update=update_constraint,
-    )
-    max_z = FloatProperty(
-        name="",
-        update=update_constraint,
+    rot_tolerance = FloatVectorProperty(
+        name="Tolerance for rotation constraint (0 to disable)",
+        subtype="AXISANGLE",
+        unit="ROTATION",
+        update=update_rot_tolerance,
     )

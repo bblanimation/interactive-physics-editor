@@ -40,11 +40,17 @@ class PHYSICS_OT_recenter_tolerance_at_origin(Operator, interactive_sim_drawing)
 
     def execute(self, context):
         try:
-            add_constraints([context.object])
+            add_constraints([context.object], loc=self.loc, rot=self.rot)
             return {"RUNNING_MODAL"}
         except:
             interactive_physics_handle_exception()
             self.close_interactive_sim()
             return {"CANCELLED"}
+
+    ###################################################
+    # class variables
+
+    loc = BoolProperty(default=False)
+    rot = BoolProperty(default=False)
 
     ################################################

@@ -134,6 +134,8 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
     ###################################################
     # class variables
 
+    # NONE!
+
     #############################################
     # class methods
 
@@ -239,3 +241,5 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         for obj in self.objs:
             obj.matrix_world = self.matrices[obj.name]
         self.close_interactive_sim()
+
+    ###################################################
