@@ -41,32 +41,42 @@ def mathutils_mult(*argv):
     return result
 
 
-def vec_mult(v1:Vector, v2:Vector):
+def vec_mult(v1:Vector, v2:Vector, outer_type=Vector):
     """ componentwise multiplication for vectors """
-    return Vector(e1 * e2 for e1, e2 in zip(v1, v2))
+    return outer_type(e1 * e2 for e1, e2 in zip(v1, v2))
 
 
-def vec_div(v1:Vector, v2:Vector):
+def vec_div(v1:Vector, v2:Vector, outer_type=Vector):
     """ componentwise division for vectors """
-    return Vector(e1 / e2 for e1, e2 in zip(v1, v2))
+    return outer_type(e1 / e2 for e1, e2 in zip(v1, v2))
 
 
-def vec_remainder(v1:Vector, v2:Vector):
+def vec_mod(v1:Vector, v2:Vector, outer_type=Vector):
+    """ componentwise modulo for vectors """
+    return outer_type(e1 % e2 for e1, e2 in zip(v1, v2))
+
+
+def vec_remainder(v1:Vector, v2:Vector, outer_type=Vector):
     """ componentwise remainder for vectors """
-    return Vector(e1 % e2 for e1, e2 in zip(v1, v2))
+    return outer_type(e1 % e2 for e1, e2 in zip(v1, v2))
 
 
-def vec_abs(v1:Vector):
+def vec_abs(v1:Vector, outer_type:type=Vector):
     """ componentwise absolute value for vectors """
-    return Vector(abs(e1) for e1 in v1)
+    return outer_type(abs(e1) for e1 in v1)
 
 
-def vec_conv(v1, innerType:type=int, outerType:type=Vector):
+def outer_type(v1:Vector, outer_type:type=Vector):
+    """ clamp items in iterable to the 0..1 range """
+    return outer_type([max(0, min(1, e1)) for e1 in v1])
+
+
+def vec_conv(v1:Vector, inner_type:type=int, outer_type:type=Vector):
     """ convert type of items in iterable """
-    return outerType([innerType(e1) for e1 in v1])
+    return outer_type([inner_type(e1) for e1 in v1])
 
 
-def vec_round(v1:Vector, precision:int=0, round_type="ROUND"):
+def vec_round(v1:Vector, precision:int=0, round_type="ROUND", outer_type:type=Vector):
     """ round items in Vector """
     if round_type == "ROUND":
         lst = [round(e1, precision) for e1 in v1]
@@ -76,7 +86,7 @@ def vec_round(v1:Vector, precision:int=0, round_type="ROUND"):
     elif round_type in ("CEILING", "CEIL"):
         prec = 10**precision
         lst = [(math.ceil(e1 * prec)) / prec for e1 in v1]
-    return Vector(lst)
+    return outer_type(lst)
 
 
 def mean(lst:list):

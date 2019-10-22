@@ -26,6 +26,9 @@ import time
 # Blender imports
 import bpy
 
+# Module imports
+# NONE!
+
 
 def stopwatch(text:str, start_time:float, end_time:float=None, precision:int=5, multiplier:float=1):
     """ from seconds to Days;Hours:Minutes;Seconds """

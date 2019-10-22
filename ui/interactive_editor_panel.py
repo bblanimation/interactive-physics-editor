@@ -54,7 +54,7 @@ class PHYSICS_PT_interactive_editor(Panel):
 
         col = layout.column(align=True)
         if context.scene.name != "Interactive Physics Session":
-            col.operator("physics.setup_interactive_sim", text="New Interactive Physics Session", icon="PHYSICS")
+            col.operator("physics.setup_ipe", text="New Interactive Physics Session", icon="PHYSICS")
         else:
             obj = bpy.context.active_object
 
@@ -228,3 +228,24 @@ class PHYSICS_PT_interactive_editor_limit_rotation(Panel):
         row.prop(obj, "lock_rotation", text="", index=2)
 
         layout.operator("physics.recenter_tolerance_at_origin", icon="OBJECT_ORIGIN").rot = True
+
+
+class PHYSICS_PT_editor_actions(Panel):
+    bl_space_type  = "VIEW_3D"
+    bl_region_type = "UI" if b280() else "TOOLS"
+    bl_label       = "Editor Actions"
+    bl_idname      = "PHYSICS_PT_editor_actions"
+    bl_context     = "objectmode"
+    bl_category    = "Physics"
+
+    @classmethod
+    def poll(self, context):
+        """ ensures operator can execute (if not, returns false) """
+        if context.scene.name != "Interactive Physics Session":
+            return False
+        return True
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator("physics.close_ipe", text="Close Session", icon="FILE_TICK").status = "CLOSE"
+        layout.operator("physics.close_ipe", text="Cancel Session", icon="PANEL_CLOSE").status = "CANCEL"

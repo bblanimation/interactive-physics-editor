@@ -22,12 +22,11 @@ from mathutils import Matrix, Vector
 
 # Addon imports
 from .setup_phys_drawing import *
-from ..functions.common import *
-from ..app_handlers import *
+from ..functions import *
 
-class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
+class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
     """Switch to new scene and set up for rigid body physics simulation"""
-    bl_idname = "physics.setup_interactive_sim"
+    bl_idname = "physics.setup_ipe"
     bl_label = "Setup New Physics Scene for Simulation"
     bl_options = {"REGISTER","UNDO"}
 
@@ -57,7 +56,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
                 scn.physics.lock_rot = self.active_object.lock_rotation
 
             # close sim
-            elif event.type == "RET":
+            elif event.type == "RET" or scn.physics.status == "CLOSE":
                 # ensure mouse is in 3D_VIEW
                 space, i = get_quadview_index(context, event.mouse_x, event.mouse_y)
                 if space in (None, "UI" if b280() else "TOOLS"):
@@ -65,9 +64,9 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
                 self.close_interactive_sim()
                 return {"FINISHED"}
             # cancel sim
-            elif event.type == "ESC":
+            elif event.type == "ESC" or scn.physics.status == "CANCEL":
                 self.cancel_interactive_sim()
-                return {"FINISHED"}
+                return {"CANCELLED"}
             elif self.sim_scene.frame_current == 1:
                 self.sim_scene.frame_end = 500
             # handle undo
@@ -82,7 +81,6 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
                 space, i = get_quadview_index(context, event.mouse_x, event.mouse_y)
                 # block left_click if not in 3D viewport
                 if space is None:
-                    return {"PASS_THROUGH"}
                     return {"RUNNING_MODAL"}
                 # update animation
                 elif event.value == "RELEASE":
@@ -148,6 +146,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         self.sim_scene.physics.use_gravity = False
         self.sim_scene.use_gravity = False
         self.sim_scene.sync_mode = "NONE"
+        bpy.context.scene.physics.status = "RUNNING"
 
         # TODO Clear existing objects and any physics cache
         for ob in self.sim_scene.objects:
@@ -219,7 +218,9 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
         set_active_scene(self.orig_scene)
         bpy.data.scenes.remove(self.sim_scene)
         self.orig_scene.frame_set(self.orig_frame)
-        bpy_collections().remove(bpy_collections().get(collection_name))
+        coll = bpy_collections().get(collection_name)
+        if coll:
+            bpy_collections().remove(coll)
         for obj in self.objs:
             obj.matrix_world = self.matrices[obj.name]
         update_depsgraph()
@@ -234,8 +235,11 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
             limit2 = obj.constraints.get("Limit Rotation")
             if limit2 is not None:
                 obj.constraints.remove(limit2)
-        bpy.app.handlers.frame_change_pre.remove(handle_edit_session_pre)
-        bpy.app.handlers.frame_change_post.remove(handle_edit_session_post)
+        try:
+            bpy.app.handlers.frame_change_pre.remove(handle_edit_session_pre)
+            bpy.app.handlers.frame_change_post.remove(handle_edit_session_post)
+        except ValueError:
+            pass
 
     def cancel_interactive_sim(self):
         for obj in self.objs:

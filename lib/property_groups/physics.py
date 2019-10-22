@@ -60,3 +60,12 @@ class PhysicsProperties(bpy.types.PropertyGroup):
         update=update_enable_gravity,
         default=False,
     )
+    status = EnumProperty(
+        name="Interactive Physics Editor state",
+        items=[
+            ("RUNNING", "Running", "", 0),
+            ("CLOSE", "Close", "", 1),
+            ("CANCEL", "Cancel", "", 2),
+        ],
+        default="RUNNING",
+    )

@@ -22,7 +22,7 @@ from bpy.app.handlers import persistent
 from mathutils import Matrix, Vector
 
 # Addon imports
-from .functions.common import *
+from .common import *
 
 # global vars
 collection_name = "interactive_edit_session"

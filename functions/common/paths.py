@@ -23,6 +23,9 @@ import platform
 # Blender imports
 # NONE!
 
+# Module imports
+# NONE!
+
 
 def make_bash_safe(s:str, replace_with:str=None, unsafe_chars:str="!#$&'()*,;<=>?[]^`{|}~: "):
     """ make filenames and paths bash safe """

@@ -25,8 +25,12 @@ import sys
 import zlib
 import binascii
 from io import StringIO
+import re
 
 # Blender imports
+# NONE!
+
+# Module imports
 # NONE!
 
 
@@ -61,8 +65,8 @@ def uniquify1(seq:iter):
         keys[e] = 1
     return list(keys.keys())
 
-def uniquify2(seq:list, innerType:type=list):
-    return [innerType(x) for x in set(tuple(x) for x in seq)]
+def uniquify2(seq:list, inner_type:type=list):
+    return [inner_type(x) for x in set(tuple(x) for x in seq)]
 
 
 # efficient removal from list if unordered
@@ -151,6 +155,10 @@ def str_to_bool(s:str):
         return False
     else:
         raise ValueError("String '%(s)s' could not be evaluated as a bool" % locals())
+
+
+def find_all(val:str, string:str):
+    return [m.start() for m in re.finditer(val, string)]
 
 
 #################### OTHER ####################

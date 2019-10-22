@@ -24,10 +24,10 @@ from mathutils import Matrix, Vector
 from .setup_phys_drawing import *
 from ..functions import *
 
-class PHYSICS_OT_recenter_tolerance_at_origin(Operator, interactive_sim_drawing):
-    """ Center the tolerance for the active object at the current location """
-    bl_idname = "physics.recenter_tolerance_at_origin"
-    bl_label = "Recenter at Origin"
+class PHYSICS_OT_close_ipe(Operator, interactive_sim_drawing):
+    """ Close current Interactive Physics Editor session """
+    bl_idname = "physics.close_ipe"
+    bl_label = "Close Session"
     bl_options = {"REGISTER","UNDO"}
 
     ################################################
@@ -35,12 +35,12 @@ class PHYSICS_OT_recenter_tolerance_at_origin(Operator, interactive_sim_drawing)
 
     @classmethod
     def poll(self, context):
-        return context.object is not None
+        return True
 
     def execute(self, context):
         try:
-            add_constraints([context.object], loc=self.loc, rot=self.rot)
-            return {"RUNNING_MODAL"}
+            context.scene.physics.status = self.status
+            return {"FINISHED"}
         except:
             interactive_physics_handle_exception()
             return {"CANCELLED"}
@@ -48,7 +48,11 @@ class PHYSICS_OT_recenter_tolerance_at_origin(Operator, interactive_sim_drawing)
     ###################################################
     # class variables
 
-    loc = BoolProperty(default=False)
-    rot = BoolProperty(default=False)
+    status = EnumProperty(
+        items=[
+            ("CLOSE", "Close", "", 0),
+            ("CANCEL", "Cancel", "", 1),
+        ]
+    )
 
-    ################################################
+    #############################################

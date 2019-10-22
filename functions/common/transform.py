@@ -32,16 +32,16 @@ from .python_utils import confirm_iter
 
 def apply_transform(obj:Object, location:bool=True, rotation:bool=True, scale:bool=True):
     """ apply object transformation to mesh """
-    loc, rot, scale = obj.matrix_world.decompose()
+    loc, rot, scl = obj.matrix_world.decompose()
     obj.matrix_world = Matrix.Identity(4)
     m = obj.data
-    s_mat_x = Matrix.Scale(scale.x, 4, Vector((1, 0, 0)))
-    s_mat_y = Matrix.Scale(scale.y, 4, Vector((0, 1, 0)))
-    s_mat_z = Matrix.Scale(scale.z, 4, Vector((0, 0, 1)))
+    s_mat_x = Matrix.Scale(scl.x, 4, Vector((1, 0, 0)))
+    s_mat_y = Matrix.Scale(scl.y, 4, Vector((0, 1, 0)))
+    s_mat_z = Matrix.Scale(scl.z, 4, Vector((0, 0, 1)))
     if scale:
         m.transform(mathutils_mult(s_mat_x, s_mat_y, s_mat_z))
     else:
-        obj.scale = scale
+        obj.scale = scl
     if rotation:
         m.transform(rot.to_matrix().to_4x4())
     else:
@@ -132,7 +132,7 @@ def bounds(obj:Object, local:bool=False, use_adaptive_domain:bool=True):
     return info
 
 
-def set_obj_origin(obj:Object, loc:Vector):
+def set_obj_origin(obj:Object, loc:tuple):
     """ set object origin """
     l, r, s = obj.matrix_world.decompose()
     r_mat = r.to_matrix().to_4x4()
@@ -140,7 +140,7 @@ def set_obj_origin(obj:Object, loc:Vector):
     s_mat_y = Matrix.Scale(s.y, 4, Vector((0, 1, 0)))
     s_mat_z = Matrix.Scale(s.z, 4, Vector((0, 0, 1)))
     s_mat = mathutils_mult(s_mat_x, s_mat_y, s_mat_z)
-    mx = mathutils_mult((obj.matrix_world.translation-loc), r_mat, s_mat.inverted())
+    mx = mathutils_mult((obj.matrix_world.translation - Vector(loc)), r_mat, s_mat.inverted())
     obj.data.transform(Matrix.Translation(mx))
     obj.matrix_world.translation = loc
 

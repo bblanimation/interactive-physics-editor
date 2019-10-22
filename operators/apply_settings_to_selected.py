@@ -22,11 +22,10 @@ from mathutils import Matrix, Vector
 
 # Addon imports
 from .setup_phys_drawing import *
-from ..functions.common import *
-from ..app_handlers import *
+from ..functions import *
 
 class PHYSICS_OT_apply_settings_to_selected(Operator, interactive_sim_drawing):
-    """Switch to new scene and set up for rigid body physics simulation"""
+    """ Apply rigid body settings (type, collision shape) to selected objects """
     bl_idname = "physics.apply_settings_to_selected"
     bl_label = "Apply to Selected Objects"
     bl_options = {"REGISTER","UNDO"}

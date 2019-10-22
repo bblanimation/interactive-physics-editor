@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from .app_handlers import *
 from .common import *
 from .general import *
 from .property_callbacks import *
