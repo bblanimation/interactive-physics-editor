@@ -63,14 +63,17 @@ def interactive_physics_handle_exception():
     handle_exception(log_name="Interactive Physics Editor log", report_button_loc="Physics > Interactive Physics Editor > Report Error")
 
 
-def add_constraints(objs, min_shift=(0, 0, 0), max_shift=(0, 0, 0), use_limits=[False, False, False, False, False, False]):
+def add_constraints(objs):
     for obj in objs:
         if obj.type != "MESH": continue
+        tolerance = obj.limit_location.tolerance
 
-        limit = obj.constraints.get("Limit Location")
-        if limit is not None:
-            obj.constraints.remove(limit)
-        limit = obj.constraints.new("LIMIT_LOCATION")
+        constraint = obj.constraints.get("Limit Location")
+        if constraint is not None:
+            obj.constraints.remove(constraint)
+        constraint = obj.constraints.new("LIMIT_LOCATION")
+        constraint.owner_space = "LOCAL"
+        constraint.use_transform_limit = False
 
         imx = obj.matrix_world.inverted()
         world_loc = obj.matrix_world.to_translation()
@@ -80,15 +83,16 @@ def add_constraints(objs, min_shift=(0, 0, 0), max_shift=(0, 0, 0), use_limits=[
         Y = world_loc.dot(mathutils_mult(rot, Vector((0, 1, 0))))
         Z = world_loc.dot(mathutils_mult(rot, Vector((0, 0, 1))))
 
-        limit.use_min_x = use_limits[0]
-        limit.use_min_y = use_limits[1]
-        limit.use_min_z = use_limits[2]
-        limit.use_max_x = use_limits[3]
-        limit.use_max_y = use_limits[4]
-        limit.use_max_z = use_limits[5]
-        limit.use_transform_limit = False
+        update_constraints(constraint, (X, Y, Z), tolerance)
 
-        limit.owner_space = "LOCAL"
-        limit.min_x, limit.max_x = X + min_shift[0], X + max_shift[0]
-        limit.min_y, limit.max_y = Y + min_shift[1], Y + max_shift[1]
-        limit.min_z, limit.max_z = Z + min_shift[2], Z + max_shift[2]
+def update_constraints(constraint, limit, tolerance=(0, 0, 0)):
+    constraint.use_min_x = bool(tolerance[0])
+    constraint.use_max_x = bool(tolerance[0])
+    constraint.use_min_y = bool(tolerance[1])
+    constraint.use_max_y = bool(tolerance[1])
+    constraint.use_min_z = bool(tolerance[2])
+    constraint.use_max_z = bool(tolerance[2])
+
+    constraint.min_x, constraint.max_x = limit[0] - tolerance[0], limit[0] + tolerance[0]
+    constraint.min_y, constraint.max_y = limit[1] - tolerance[1], limit[1] + tolerance[1]
+    constraint.min_z, constraint.max_z = limit[2] - tolerance[2], limit[2] + tolerance[2]

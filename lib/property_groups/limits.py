@@ -24,28 +24,14 @@ from ...functions.property_callbacks import *
 
 
 class LimitProperties(bpy.types.PropertyGroup):
-    use_min_x = BoolProperty(
-        name="Min X",
+    use_tolerance = BoolVectorProperty(
+        name="Use Tolerance",
         update=update_constraint,
     )
-    use_min_y = BoolProperty(
-        name="Min Y",
-        update=update_constraint,
-    )
-    use_min_z = BoolProperty(
-        name="Min Z",
-        update=update_constraint,
-    )
-    min_x = FloatProperty(
-        name="",
-        update=update_constraint,
-    )
-    min_y = FloatProperty(
-        name="",
-        update=update_constraint,
-    )
-    min_z = FloatProperty(
-        name="",
+    tolerance = FloatVectorProperty(
+        name="Tolerance for location constraint (0 to disable)",
+        subtype="TRANSLATION",
+        unit="LENGTH",
         update=update_constraint,
     )
     use_max_x = BoolProperty(

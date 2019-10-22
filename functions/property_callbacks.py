@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import statistics
+
 from .common import *
 from .general import *
 
@@ -46,24 +48,12 @@ def update_enable_gravity(self, context):
 
 def update_constraint(self, context):
     scn = bpy.context.scene
-    objs = [obj for obj in scn.objects if "Limit Location" in obj.constraints]
-    limit_location = scn.physics.limit_location
-    use_limits = [
-        limit_location.use_min_x,
-        limit_location.use_min_y,
-        limit_location.use_min_z,
-        limit_location.use_max_x,
-        limit_location.use_max_y,
-        limit_location.use_max_z,
-    ]
-    min_shift = [
-        limit_location.min_x,
-        limit_location.min_y,
-        limit_location.min_z,
-    ]
-    max_shift = [
-        limit_location.max_x,
-        limit_location.max_y,
-        limit_location.max_z,
-    ]
-    add_constraints(objs, min_shift=min_shift, max_shift=max_shift, use_limits=use_limits)
+    obj = context.object
+    limit_location = obj.limit_location
+    constraint = obj.constraints.get("Limit Location")
+    median_limit = Vector((
+        statistics.median((constraint.max_x, constraint.min_x)),
+        statistics.median((constraint.max_y, constraint.min_y)),
+        statistics.median((constraint.max_z, constraint.min_z)),
+    ))
+    update_constraints(constraint, median_limit, limit_location.tolerance)

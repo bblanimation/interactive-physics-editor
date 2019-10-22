@@ -70,8 +70,8 @@ class PHYSICS_PT_interactive_editor(Panel):
             col.prop(obj.rigid_body, "collision_shape", text="")
             col.prop(obj.rigid_body, "collision_margin", text="Margin")
 
-            layout.separator()
-
+            # layout.separator()
+            #
             # split = layout_split(layout, factor=0.8, align=True)
             # col = split.column(align=True)
             # col.prop(obj, "lock_location")
@@ -89,16 +89,6 @@ class PHYSICS_PT_interactive_editor(Panel):
             # col.label(text="(X)")
             # col.label(text="(Y)")
             # col.label(text="(Z)")
-
-            col = layout.column(align=True)
-            col.label(text="Lock Location:")
-            row = col.row(align=True)
-            row.prop(scn.physics, "lock_loc", toggle=True, text="")
-
-            col = layout.column(align=True)
-            col.label(text="Lock Rotation:")
-            row = col.row(align=True)
-            row.prop(scn.physics, "lock_rot", toggle=True, text="")
 
             layout.separator()
 
@@ -163,31 +153,40 @@ class PHYSICS_PT_interactive_editor_limit_location(Panel):
 
     # def draw_header(self, context):
     #     scn = context.scene
-    #     self.layout.prop(scn.physics, "use_gravity", text="")
+    #     self.layout.prop(scn.physics, text="")
 
     def draw(self, context):
         layout = self.layout
         scn = context.scene
+        obj = context.object
 
-        col = layout.column()
-        row = col.row()
-        row.prop(scn.physics.limit_location, "use_min_x")
-        row.prop(scn.physics.limit_location, "use_min_y")
-        row.prop(scn.physics.limit_location, "use_min_z")
-        row = col.row()
-        row.prop(scn.physics.limit_location, "min_x")
-        row.prop(scn.physics.limit_location, "min_y")
-        row.prop(scn.physics.limit_location, "min_z")
+        # col = layout.column(align=True)
+        # col.label(text="Lock Location:")
+        # row = col.row(align=True)
+        # row.prop(obj, "lock_loc", toggle=True, text="")
+        #
+        # col = layout.column(align=True)
+        # col.label(text="Tolerance:")
 
-        col = layout.column()
-        row = col.row()
-        row.prop(scn.physics.limit_location, "use_max_x")
-        row.prop(scn.physics.limit_location, "use_max_y")
-        row.prop(scn.physics.limit_location, "use_max_z")
-        row = col.row()
-        row.prop(scn.physics.limit_location, "max_x")
-        row.prop(scn.physics.limit_location, "max_y")
-        row.prop(scn.physics.limit_location, "max_z")
+        row = layout.row(align=False)
+        col = row.column(align=True)
+        col.active = not obj.lock_location[0]
+        col.prop(obj.limit_location, "tolerance", text="Tol X", index=0)
+        row.prop(obj, "lock_location", text="", index=0)
+
+        row = layout.row(align=False)
+        col = row.column(align=True)
+        col.active = not obj.lock_location[1]
+        col.prop(obj.limit_location, "tolerance", text="Tol Y", index=1)
+        row.prop(obj, "lock_location", text="", index=1)
+
+        row = layout.row(align=False)
+        col = row.column(align=True)
+        col.active = not obj.lock_location[2]
+        col.prop(obj.limit_location, "tolerance", text="Tol Z", index=2)
+        row.prop(obj, "lock_location", text="", index=2)
+
+        layout.operator("physics.recenter_tolerance_at_origin", icon="OBJECT_ORIGIN")
 
 
 class PHYSICS_PT_interactive_editor_limit_rotation(Panel):
@@ -217,22 +216,27 @@ class PHYSICS_PT_interactive_editor_limit_rotation(Panel):
         layout = self.layout
         scn = context.scene
 
-        col = layout.column()
-        row = col.row()
-        row.prop(scn.physics.limit_rotation, "use_min_x")
-        row.prop(scn.physics.limit_rotation, "use_min_y")
-        row.prop(scn.physics.limit_rotation, "use_min_z")
-        row = col.row()
-        row.prop(scn.physics.limit_rotation, "min_x")
-        row.prop(scn.physics.limit_rotation, "min_y")
-        row.prop(scn.physics.limit_rotation, "min_z")
+        col = layout.column(align=True)
+        col.label(text="Lock Rotation:")
+        row = col.row(align=True)
+        row.prop(scn.physics, "lock_rot", toggle=True, text="")
 
-        col = layout.column()
-        row = col.row()
-        row.prop(scn.physics.limit_rotation, "use_max_x")
-        row.prop(scn.physics.limit_rotation, "use_max_y")
-        row.prop(scn.physics.limit_rotation, "use_max_z")
-        row = col.row()
-        row.prop(scn.physics.limit_rotation, "max_x")
-        row.prop(scn.physics.limit_rotation, "max_y")
-        row.prop(scn.physics.limit_rotation, "max_z")
+        # col = layout.column()
+        # row = col.row()
+        # row.prop(scn.physics.limit_rotation, "use_min_x")
+        # row.prop(scn.physics.limit_rotation, "use_min_y")
+        # row.prop(scn.physics.limit_rotation, "use_min_z")
+        # row = col.row()
+        # row.prop(scn.physics.limit_rotation, "min_x")
+        # row.prop(scn.physics.limit_rotation, "min_y")
+        # row.prop(scn.physics.limit_rotation, "min_z")
+        #
+        # col = layout.column()
+        # row = col.row()
+        # row.prop(scn.physics.limit_rotation, "use_max_x")
+        # row.prop(scn.physics.limit_rotation, "use_max_y")
+        # row.prop(scn.physics.limit_rotation, "use_max_z")
+        # row = col.row()
+        # row.prop(scn.physics.limit_rotation, "max_x")
+        # row.prop(scn.physics.limit_rotation, "max_y")
+        # row.prop(scn.physics.limit_rotation, "max_z")

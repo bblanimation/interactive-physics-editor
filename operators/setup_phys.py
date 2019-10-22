@@ -82,6 +82,7 @@ class PHYSICS_OT_setup_interactive_sim(Operator, interactive_sim_drawing):
                 space, i = get_quadview_index(context, event.mouse_x, event.mouse_y)
                 # block left_click if not in 3D viewport
                 if space is None:
+                    return {"PASS_THROUGH"}
                     return {"RUNNING_MODAL"}
                 # update animation
                 elif event.value == "RELEASE":

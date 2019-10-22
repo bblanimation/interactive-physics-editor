@@ -60,7 +60,3 @@ class PhysicsProperties(bpy.types.PropertyGroup):
         update=update_enable_gravity,
         default=False,
     )
-
-    # limit_location
-    limit_location = PointerProperty(type=LimitProperties)
-    limit_rotation = PointerProperty(type=LimitProperties)

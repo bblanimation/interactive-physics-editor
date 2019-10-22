@@ -29,6 +29,7 @@ classes = (
     # operators
     PHYSICS_OT_setup_interactive_sim,
     PHYSICS_OT_apply_settings_to_selected,
+    PHYSICS_OT_recenter_tolerance_at_origin,
     # ui
     PHYSICS_PT_interactive_editor,
     # PHYSICS_PT_interactive_editor_object_behavior,

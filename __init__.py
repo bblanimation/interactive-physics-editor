@@ -47,6 +47,8 @@ def register():
 
     # register properties
     Scene.physics = PointerProperty(type=PhysicsProperties)
+    Object.limit_location = PointerProperty(type=LimitProperties)
+    Object.limit_rotation = PointerProperty(type=LimitProperties)
 
     # addon updater code and configurations
     addon_updater_ops.register(bl_info)
@@ -56,6 +58,8 @@ def unregister():
     addon_updater_ops.unregister()
     # unregister properties
     del Scene.physics
+    del Object.limit_location
+    del Object.limit_rotation
     # unregister classes
     for cls in classes:
         bpy.utils.unregister_class(cls)
