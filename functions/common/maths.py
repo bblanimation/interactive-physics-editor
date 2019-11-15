@@ -76,16 +76,18 @@ def vec_conv(v1:Vector, inner_type:type=int, outer_type:type=Vector):
     return outer_type([inner_type(e1) for e1 in v1])
 
 
-def vec_round(v1:Vector, precision:int=0, round_type="ROUND", outer_type:type=Vector):
+def vec_round(v1:Vector, precision:int=0, round_type:str="ROUND", outer_type:type=Vector):
     """ round items in Vector """
     if round_type == "ROUND":
         lst = [round(e1, precision) for e1 in v1]
     elif round_type == "FLOOR":
         prec = 10**precision
-        lst = [(math.floor(e1 * prec)) / prec for e1 in v1]
+        lst = [math.floor(e1 * prec) / prec for e1 in v1] if prec != 1 else [math.floor(e1) for e1 in v1]
     elif round_type in ("CEILING", "CEIL"):
         prec = 10**precision
-        lst = [(math.ceil(e1 * prec)) / prec for e1 in v1]
+        lst = [math.ceil(e1 * prec) / prec for e1 in v1] if prec != 1 else [math.ceil(e1) for e1 in v1]
+    else:
+        raise Exception("Argument passed to 'round_type' parameter invalid: " + str(round_type))
     return outer_type(lst)
 
 
@@ -94,10 +96,12 @@ def mean(lst:list):
     return sum(lst)/len(lst)
 
 
-def round_nearest(num:float, divisor:int):
+def round_nearest(num:float, divisor:int, round_type:str="ROUND"):
     """ round to nearest multiple of 'divisor' """
     rem = num % divisor
-    if rem > divisor / 2:
+    if round_type == "FLOOR":
+        return round_down(num, divisor)
+    elif round_type in ("CEILING", "CEIL") or rem > divisor / 2:
         return round_up(num, divisor)
     else:
         return round_down(num, divisor)

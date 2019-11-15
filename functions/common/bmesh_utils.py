@@ -27,7 +27,7 @@ from mathutils import Vector, Matrix, Color
 from mathutils.bvhtree import BVHTree
 
 # Module imports
-# NONE!
+from .python_utils import *
 
 
 def smooth_bm_faces(faces:iter):

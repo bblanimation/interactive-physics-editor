@@ -151,7 +151,7 @@ def make_cube(coord1:Vector, coord2:Vector, sides:list=[False]*6, flip_normals:b
     return bme, verts
 
 
-def make_circle(radius:float, vertices:int, co:tuple=Vector((0, 0, 0)), fill:bool=True, flip_normals:bool=False, bme:bmesh=None):
+def make_circle(radius:float, vertices:int, co:tuple=Vector((0, 0, 0)), fill:bool=True, flip_normals:bool=False, select:bool=False, bme:bmesh=None):
     """
     create a circle with bmesh
 
@@ -182,6 +182,10 @@ def make_circle(radius:float, vertices:int, co:tuple=Vector((0, 0, 0)), fill:boo
     else:
         for i in range(len(verts)):
             bme.edges.new((verts[i - 1], verts[i]))
+
+    # select geometry
+    if select:
+        select_geom(verts)
 
     return bme
 

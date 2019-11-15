@@ -57,6 +57,9 @@ class PHYSICS_PT_interactive_editor(Panel):
             col.operator("physics.setup_ipe", text="New Interactive Physics Session", icon="PHYSICS")
         else:
             obj = bpy.context.active_object
+            if obj is None or obj.rigid_body is None:
+                col.label(text="Object is not rigid body")
+                return
 
             col = layout.column(align=True)
             col.label(text="Rigid Body Type:")

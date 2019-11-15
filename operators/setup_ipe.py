@@ -43,7 +43,8 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
             # return {"PASS_THROUGH"}
             if self.selected_objs != bpy.context.selected_objects:
                 self.selected_objs = bpy.context.selected_objects
-                for obj in context.scene.collection.all_objects:
+                objs = scn.collection.all_objects if b280() else scn.objects
+                for obj in objs:
                     if obj.rigid_body is None:
                         continue
                     if b280():
@@ -52,8 +53,9 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
                         obj.rigid_body.kinematic = obj.select
             if self.active_object != bpy.context.active_object:
                 self.active_object = bpy.context.active_object
-                scn.physics.lock_loc = self.active_object.lock_location
-                scn.physics.lock_rot = self.active_object.lock_rotation
+                if self.active_object:
+                    scn.physics.lock_loc = self.active_object.lock_location
+                    scn.physics.lock_rot = self.active_object.lock_rotation
 
             # close sim
             elif event.type == "RET" or scn.physics.status == "CLOSE":
@@ -202,7 +204,7 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
             rb.mass = 3
             deselect(obj)
             obj.data.update()
-        update_depsgraph()
+        depsgraph_update()
 
         bpy.app.handlers.frame_change_pre.append(handle_edit_session_pre)
         bpy.app.handlers.frame_change_post.append(handle_edit_session_post)
@@ -223,7 +225,7 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
             bpy_collections().remove(coll)
         for obj in self.objs:
             obj.matrix_world = self.matrices[obj.name]
-        update_depsgraph()
+        depsgraph_update()
         for obj in self.objs:
             obj.lock_rotations_4d = False
             obj.lock_rotation = [False]*3

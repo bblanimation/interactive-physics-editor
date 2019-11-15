@@ -43,32 +43,38 @@ def gamma_correct(rgba:list, val:float=2.0167):
     return [r, g, b, a]
 
 
-def gamma_correct_linear_to_srgb(rgba:list):
+def gamma_correct_linear_to_srgb(color:list):
     """ gamma correct color from linear to sRGB """
-    r, g, b, a = rgba
-    new_rgba = list()
+    new_color = list()
     # see https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
-    for u in rgba:
+    for u in color:
         if u <= 0.0031308:
             u2 = 12.92 * u
         else:
-            u2 = math.pow(1.055 * u, 1 / 2.4) - 0.055
-        new_rgba.append(u2)
-    return new_rgba
+            u2 = (1.055 * u) ** (1 / 2.4) - 0.055
+        new_color.append(u2)
+    return new_color
 
 
-def gamma_correct_srgb_to_linear(rgba:list):
+def gamma_correct_srgb_to_linear(color:list):
     """ gamma correct color from sRGB to linear """
-    r, g, b, a = rgba
-    new_rgba = list()
+    new_color = list()
     # see https://en.wikipedia.org/wiki/SRGB#The_reverse_transformation
-    for u in rgba:
+    for u in color:
         if u <= 0.04045:
             u2 = u / 12.92
         else:
-            u2 = math.pow((u + 0.055) / 1.055, 2.4)
-        new_rgba.append(u2)
-    return new_rgba
+            u2 = ((u + 0.055) / 1.055) ** 2.4
+        new_color.append(u2)
+    return new_color
+
+
+def rgb_to_bw(color:list, gamma_correct:bool=True):
+    r, g, b = color[:3]
+    new_color = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    if gamma_correct:
+        new_color = gamma_correct_linear_to_srgb([new_color])[0]
+    return new_color
 
 
 def get_average(rgba0:Vector, rgba1:Vector, weight:float):

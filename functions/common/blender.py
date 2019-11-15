@@ -30,6 +30,7 @@ try:
     from bpy.types import ViewLayer, LayerCollection
 except ImportError:
     ViewLayer = None
+    LayerCollection = None
 
 # Module imports
 from .python_utils import confirm_iter, confirm_list
@@ -282,7 +283,7 @@ def safe_link(obj:Object, protect:bool=False, collections=None):
     if hasattr(obj, "protected"):
         obj.protected = protect
 @blender_version_wrapper(">=","2.80")
-def safe_link(obj:Object, protect:bool=False, collections=None):
+def safe_link(obj:Object, protect:bool=False, collections=[]):
     # link object to target collections (scene collection by default)
     collections = collections or [bpy.context.scene.collection]
     for coll in collections:
@@ -327,7 +328,7 @@ def copy_animation_data(source:Object, target:Object):
         setattr(ad2, prop, getattr(ad, prop))
 
 
-def insert_keyframes(objs, keyframeType:str, frame:int, if_needed:bool=False):
+def insert_keyframes(objs, keyframe_type:str, frame:int, if_needed:bool=False):
     """ insert key frames for given objects to given frames """
     objs = confirm_iter(objs)
     options = set(["INSERTKEY_NEEDED"] if if_needed else [])
@@ -346,7 +347,7 @@ def new_mesh_from_object(obj:Object):
 
 
 def apply_modifiers(obj:Object):
-    """ apply modifiers to object """
+    """ apply modifiers to object (may require a depsgraph update before running) """
     m = new_mesh_from_object(obj)
     obj.modifiers.clear()
     obj.data = m
@@ -403,8 +404,8 @@ def tag_redraw_areas(area_types:iter=["ALL"]):
     screens = [bpy.context.screen] if bpy.context.screen else bpy.data.screens
     for screen in screens:
         for area in screen.areas:
-            for areaType in area_types:
-                if areaType == "ALL" or area.type == areaType:
+            for area_type in area_types:
+                if area_type == "ALL" or area.type == area_type:
                     area.tag_redraw()
 
 
@@ -422,6 +423,7 @@ def disable_relationship_lines():
             area.spaces[0].overlay.show_relationship_lines = False
 
 
+@blender_version_wrapper(">=", "2.80")
 def get_layer_collection(name:str, layer_collection:LayerCollection=None):
     """ recursivly transverse view_layer.layer_collection for a particular name """
     layer_collection = layer_collection or bpy.context.window.view_layer.layer_collection
@@ -455,12 +457,13 @@ def assemble_override_context(area_type="VIEW_3D"):
     scr      = win.screen
     areas3d  = [area for area in scr.areas if area.type == area_type]
     region   = [region for region in areas3d[0].regions if region.type == "WINDOW"]
-    override = {"window": win,
-                "screen": scr,
-                "area"  : areas3d[0],
-                "region": region[0],
-                "scene" : bpy.context.scene,
-                }
+    override = {
+        "window": win,
+        "screen": scr,
+        "area"  : areas3d[0],
+        "region": region[0],
+        "scene" : bpy.context.scene,
+    }
     return override
 
 
@@ -511,9 +514,9 @@ def smooth_mesh_faces(faces:iter):
 
 def junk_mesh():
     """ returns junk mesh (only creates one if necessary) """
-    junk_mesh = bpy.data.meshes.get("temp_junk_mesh_deleteme")
+    junk_mesh = bpy.data.meshes.get("Bricker_junk_mesh")
     if junk_mesh is None:
-        junk_mesh = bpy.data.meshes.new("temp_junk_mesh_deleteme")
+        junk_mesh = bpy.data.meshes.new("Bricker_junk_mesh")
     return junk_mesh
 
 
@@ -577,10 +580,10 @@ def active_render_engine():
 
 
 @blender_version_wrapper("<=","2.79")
-def update_depsgraph():
+def depsgraph_update():
     bpy.context.scene.update()
 @blender_version_wrapper(">=","2.80")
-def update_depsgraph():
+def depsgraph_update():
     bpy.context.view_layer.depsgraph.update()
 
 
@@ -740,10 +743,59 @@ def new_window(area_type, width=640, height=480):
     return window
 
 
-def append_from(blendfile_path, data_attr, filenames=None, overwrite_data=False):
+def is_navigation_event(event:Event):
+    navigation_events = {
+        'Rotate View': 'view3d.rotate',
+        'Move View': 'view3d.move',
+        'Zoom View': 'view3d.zoom',
+        'Dolly View': 'view3d.dolly',
+        'View Pan': 'view3d.view_pan',
+        'View Orbit': 'view3d.view_orbit',
+        'View Persp/Ortho': 'view3d.view_persportho',
+        'View Numpad': 'view3d.viewnumpad',
+        'NDOF Pan Zoom': 'view2d.ndof',
+        'NDOF Orbit View with Zoom': 'view3d.ndof_orbit_zoom',
+        'NDOF Orbit View': 'view3d.ndof_orbit',
+        'NDOF Pan View': 'view3d.ndof_pan',
+        'NDOF Move View': 'view3d.ndof_all',
+        'View Selected': 'view3d.view_selected',
+        'Center View to Cursor': 'view3d.view_center_cursor',
+        #'View Navigation': 'view3d.navigate',
+    }
+    keyconfig_name = "blender" if b280() else "Blender"
+    # keyconfig_name = "blender user" if b280() else "Blender"
+    if keyconfig_name not in bpy.context.window_manager.keyconfigs:
+        print('No keyconfig named "%s"' % keyconfig_name)
+        return
+    keyconfig = bpy.context.window_manager.keyconfigs[keyconfig_name]
+    def translate(text):
+        return bpy.app.translations.pgettext(text)
+    def get_keymap_items(key):
+        nonlocal keyconfig
+        if key in keyconfig.keymaps:
+            keymap = keyconfig.keymaps[key]
+        else:
+            keymap = keyconfig.keymaps[translate(key)]
+        return keymap.keymap_items
+    #navigation_events = { translate(key): val for key,val in navigation_events.items() }
+    navigation_idnames = navigation_events.values()
+    for kmi in get_keymap_items('3D View'):
+        if kmi.name not in navigation_events and kmi.idname not in navigation_idnames:
+            continue
+        event_type = event.type
+        if event_type == "WHEELUPMOUSE":
+            event_type = "WHEELINMOUSE"
+        if event_type == "WHEELDOWNMOUSE":
+            event_type = "WHEELOUTMOUSE"
+        if event_type == kmi.type and kmi.value in (event.value, "ANY") and kmi.shift == event.shift and kmi.alt == event.alt and kmi.ctrl == event.ctrl and kmi.oskey == event.oskey:
+            return True
+    return False
+
+
+def load_from_library(blendfile_path, data_attr, filenames=None, overwrite_data=False, action="APPEND"):
     data_block_infos = list()
     orig_data_names = lambda: None
-    with bpy.data.libraries.load(blendfile_path) as (data_from, data_to):
+    with bpy.data.libraries.load(blendfile_path, link=action == "LINK") as (data_from, data_to):
         # if only appending some of the filenames
         if filenames is not None:
             # rebuild 'data_attr' of data_from based on filenames in 'filenames' list
