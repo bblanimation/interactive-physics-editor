@@ -100,6 +100,9 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
 
     def execute(self, context):
         try:
+            if not self.is_valid():
+                self.close_interactive_sim()
+                return {"CANCELLED"}
             self.add_to_new_scene()
             self.set_up_physics()
             add_constraints(self.objs)
@@ -247,5 +250,12 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
         for obj in self.objs:
             obj.matrix_world = self.matrices[obj.name]
         self.close_interactive_sim()
+
+    def is_valid(self):
+        for obj in self.selected_objs:
+            if obj.type != "MESH":
+                self.report({"WARNING"}, "Interactive Physics Editor only supports objects of type 'MESH'")
+                return False
+        return True
 
     ###################################################
