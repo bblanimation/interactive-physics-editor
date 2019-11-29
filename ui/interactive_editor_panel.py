@@ -45,12 +45,8 @@ class PHYSICS_PT_interactive_editor(Panel):
 
         if bpy.data.texts.find("Interactive Physics Editor log") >= 0:
             split = layout_split(layout, factor=0.9)
-            col = split.column(align=True)
-            row = col.row(align=True)
-            row.operator("interactive_physics_editor.report_error", text="Report Error", icon="URL")
-            col = split.column(align=True)
-            row = col.row(align=True)
-            row.operator("interactive_physics_editor.close_report_error", text="", icon="PANEL_CLOSE")
+            split.operator("interactive_physics_editor.report_error", text="Report Error", icon="URL")
+            split.operator("interactive_physics_editor.close_report_error", text="", icon="PANEL_CLOSE")
 
         col = layout.column(align=True)
         if context.scene.name != "Interactive Physics Session":
@@ -62,9 +58,9 @@ class PHYSICS_PT_interactive_editor(Panel):
                 return
 
             col = layout.column(align=True)
-            col.label(text="Rigid Body Type:")
-            row = col.row(align=True)
-            row.prop(obj.rigid_body, "type", text="")
+            col.label(text="Rigid Body:")
+            col.prop(obj.rigid_body, "type", text="")
+            col.prop(obj.rigid_body, "friction", text="Friction")
 
             # layout.separator()
 
@@ -128,11 +124,9 @@ class PHYSICS_PT_interactive_editor_gravity(Panel):
         layout = self.layout
         scn = context.scene
 
-        col = layout.column(align=True)
-        # col.prop(scn.physics, "use_gravity", text="Enable Gravity")
-        # row = col.row(align=True)
-        col.active = scn.use_gravity and scn.physics.use_gravity
-        col.prop(scn, "gravity", text="")
+        # layout.prop(scn.physics, "use_gravity", text="Enable Gravity")
+        layout.active = scn.use_gravity and scn.physics.use_gravity
+        layout.prop(scn, "gravity", text="")
 
 
 class PHYSICS_PT_interactive_editor_limit_location(Panel):
@@ -182,7 +176,7 @@ class PHYSICS_PT_interactive_editor_limit_location(Panel):
         col.prop(obj.limit_location, "loc_tolerance", text="Tol Z", index=2)
         row.prop(obj, "lock_location", text="", index=2)
 
-        layout.operator("physics.recenter_tolerance_at_origin", icon="OBJECT_ORIGIN").loc = True
+        layout.operator("physics.recenter_tolerance_at_origin", icon="OBJECT_ORIGIN" if b280() else "OUTLINER_DATA_EMPTY").loc = True
 
 
 class PHYSICS_PT_interactive_editor_limit_rotation(Panel):
@@ -230,7 +224,7 @@ class PHYSICS_PT_interactive_editor_limit_rotation(Panel):
         col.prop(obj.limit_location, "rot_tolerance", text="Tol Z", index=2)
         row.prop(obj, "lock_rotation", text="", index=2)
 
-        layout.operator("physics.recenter_tolerance_at_origin", icon="OBJECT_ORIGIN").rot = True
+        layout.operator("physics.recenter_tolerance_at_origin", icon="OBJECT_ORIGIN" if b280() else "OUTLINER_DATA_EMPTY").rot = True
 
 
 class PHYSICS_PT_editor_actions(Panel):

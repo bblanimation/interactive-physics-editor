@@ -106,6 +106,7 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
             self.add_to_new_scene()
             self.set_up_physics()
             add_constraints(self.objs)
+            depsgraph_update()
             bpy.ops.screen.animation_play()
             context.window_manager.modal_handler_add(self)
             return {"RUNNING_MODAL"}
