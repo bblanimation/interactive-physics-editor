@@ -58,7 +58,7 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
                     scn.physics.lock_rot = self.active_object.lock_rotation
 
             # close sim
-            elif event.type == "RET" or scn.physics.status == "CLOSE":
+            if event.type == "RET" or scn.physics.status == "CLOSE":
                 # ensure mouse is in 3D_VIEW
                 space, i = get_quadview_index(context, event.mouse_x, event.mouse_y)
                 if space in (None, "UI" if b280() else "TOOLS"):
@@ -69,12 +69,16 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
             elif event.type == "ESC" or scn.physics.status == "CANCEL":
                 self.cancel_interactive_sim()
                 return {"CANCELLED"}
-            elif self.sim_scene.frame_current == 1:
-                self.sim_scene.frame_end = 500
+            # handle bad pointers
+            if self.sim_scene is None or safe_execute(None, ReferenceError, dir, self.sim_scene) is None:
+                self.sim_scene = bpy.data.scenes.get("Interactive Physics Session")
+                self.objs = [bpy.data.objects[n] for n in self.obj_names]
             # handle undo
             elif event.type == "Z" and (event.oskey or event.ctrl):
                 self.report({"WARNING"}, "Undo not available for interactive simulation. Cancel all changes with the 'ESC' key")
                 return {"RUNNING_MODAL"}
+            elif self.sim_scene.frame_current == 1:
+                self.sim_scene.frame_end = 500
             # handle (de)select all
             elif b280() and event.type == "A" and event.value == "RELEASE":
                 self.sim_scene.frame_end = self.sim_scene.frame_current + 1
@@ -119,11 +123,13 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
     # initialization method
 
     def __init__(self):
+        scn = bpy.context.scene
         self.active_object = bpy.context.active_object
         self.objs = list(bpy.context.selected_objects)
+        self.obj_names = [obj.name for obj in self.objs]
         self.selected_objs = self.objs.copy()
-        self.orig_scene = bpy.context.scene
-        self.orig_frame = self.orig_scene.frame_current
+        self.orig_scene_name = scn.name
+        self.orig_frame = scn.frame_current
         self.active_screen = bpy.context.screen
 
         self.replace_end_frame = False
@@ -145,6 +151,9 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
 
     def add_to_new_scene(self):
         # add new physics session scene
+        old_sim_scene = bpy.data.scenes.get("Interactive Physics Session")
+        if old_sim_scene:
+            bpy.data.scenes.remove(old_sim_scene)
         self.sim_scene = bpy.data.scenes.new("Interactive Physics Session")
         set_active_scene(self.sim_scene)
 
@@ -214,23 +223,22 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
         bpy.app.handlers.frame_change_post.append(handle_edit_session_post)
 
     def close_interactive_sim(self):
+        # clean up UI
         self.ui_end()
-        if self.sim_scene is None:
-            return
+        # do the rest of the cleanup
         for obj in self.objs:
             self.matrices[obj.name] = obj.matrix_world.copy()
-        bpy.ops.rigidbody.objects_remove()
-        bpy.ops.screen.animation_cancel()
-        set_active_scene(self.orig_scene)
+        orig_scene = bpy.data.scenes[self.orig_scene_name]
+        set_active_scene(orig_scene)
         bpy.data.scenes.remove(self.sim_scene)
-        self.orig_scene.frame_set(self.orig_frame)
+        orig_scene.frame_set(self.orig_frame)
         coll = bpy_collections().get(collection_name)
         if coll:
             bpy_collections().remove(coll)
-        for obj in self.objs:
+        for obj_n in self.objs:
             obj.matrix_world = self.matrices[obj.name]
         depsgraph_update()
-        for obj in self.objs:
+        for obj_n in self.objs:
             obj.lock_rotations_4d = False
             obj.lock_rotation = [False]*3
             obj.lock_location = [False]*3
@@ -246,10 +254,13 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
             bpy.app.handlers.frame_change_post.remove(handle_edit_session_post)
         except ValueError:
             pass
+        bpy.ops.rigidbody.objects_remove()
+        bpy.ops.screen.animation_cancel()
 
     def cancel_interactive_sim(self):
-        for obj in self.objs:
-            obj.matrix_world = self.matrices[obj.name]
+        for obj_n in self.obj_names:
+            obj = bpy.data.objects[obj_n]
+            obj.matrix_world = self.matrices[obj_n]
         self.close_interactive_sim()
 
     def is_valid(self):

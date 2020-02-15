@@ -47,7 +47,11 @@ def gamma_correct_linear_to_srgb(color:list):
     """ gamma correct color from linear to sRGB """
     new_color = list()
     # see https://en.wikipedia.org/wiki/SRGB#The_forward_transformation_(CIE_XYZ_to_sRGB)
-    for u in color:
+    for i, u in enumerate(color):
+        # skip the alpha channel
+        if i == 3:
+            new_color.append(u)
+            continue
         if u <= 0.0031308:
             u2 = 12.92 * u
         else:
@@ -60,7 +64,11 @@ def gamma_correct_srgb_to_linear(color:list):
     """ gamma correct color from sRGB to linear """
     new_color = list()
     # see https://en.wikipedia.org/wiki/SRGB#The_reverse_transformation
-    for u in color:
+    for i, u in enumerate(color):
+        # skip the alpha channel
+        if i == 3:
+            new_color.append(u)
+            continue
         if u <= 0.04045:
             u2 = u / 12.92
         else:

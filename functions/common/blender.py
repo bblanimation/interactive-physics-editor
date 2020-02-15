@@ -51,13 +51,11 @@ def get_preferences(ctx=None):
 
 def get_addon_preferences():
     """ get preferences for current addon """
-    if not hasattr(get_addon_preferences, "prefs"):
-        folderpath, foldername = os.path.split(get_addon_directory())
-        addons = get_preferences().addons
-        if not addons[foldername].preferences:
-            return None
-        get_addon_preferences.prefs = addons[foldername].preferences
-    return get_addon_preferences.prefs
+    folderpath, foldername = os.path.split(get_addon_directory())
+    addons = get_preferences().addons
+    if not addons[foldername].preferences:
+        return None
+    return addons[foldername].preferences
 
 
 def get_addon_directory():
@@ -341,8 +339,16 @@ def new_mesh_from_object(obj:Object):
     return bpy.data.meshes.new_from_object(bpy.context.scene, obj, apply_modifiers=True, settings="PREVIEW")
 @blender_version_wrapper(">=", "2.80")
 def new_mesh_from_object(obj:Object):
-    depsgraph = bpy.context.view_layer.depsgraph
+    unlink_later = False
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    # link the object if it's not in the scene, because otherwise the evaluated data may be outdated (e.g. after file is reopened)
+    if obj.name not in bpy.context.scene.objects:
+        link_object(obj)
+        depsgraph_update()
+        unlink_later = True
     obj_eval = obj.evaluated_get(depsgraph)
+    if unlink_later:
+        unlink_object(obj)
     return bpy.data.meshes.new_from_object(obj_eval)
 
 
@@ -448,7 +454,7 @@ def change_context(context, areaType:str):
     return last_area_type
 
 
-def assemble_override_context(area_type="VIEW_3D"):
+def assemble_override_context(area_type:str="VIEW_3D", scene:Scene=None):
     """
     Iterates through the blender GUI's areas & regions to find the View3D space
     NOTE: context override can only be used with bpy.ops that were called from a window/screen with a view3d space
@@ -457,12 +463,13 @@ def assemble_override_context(area_type="VIEW_3D"):
     scr      = win.screen
     areas3d  = [area for area in scr.areas if area.type == area_type]
     region   = [region for region in areas3d[0].regions if region.type == "WINDOW"]
+    scene    = scene or bpy.context.scene
     override = {
         "window": win,
         "screen": scr,
         "area"  : areas3d[0],
         "region": region[0],
-        "scene" : bpy.context.scene,
+        "scene" : scene,
     }
     return override
 
@@ -523,7 +530,7 @@ def junk_mesh():
 #################### RAY CASTING ####################
 
 
-def get_ray_target(x, y, ray_max=1000):
+def get_ray_target(x, y, ray_max=1e4):
     region = bpy.context.region
     rv3d = bpy.context.region_data
     cam = bpy.context.camera
@@ -533,19 +540,19 @@ def get_ray_target(x, y, ray_max=1000):
     if rv3d.view_perspective == "ORTHO" or (rv3d.view_perspective == "CAMERA" and cam and cam.type == "ORTHO"):
         # move ortho origin back
         ray_origin = ray_origin - (view_vector * (ray_max / 2.0))
-    ray_target = ray_origin + (view_vector * 1000)
+    ray_target = ray_origin + (view_vector * 1e4)
 
 
-def get_position_on_grid(mouse_pos, ray_max=1000):
+def get_position_on_grid(mouse_pos, ray_max=1e4):
     viewport_region = bpy.context.region
     viewport_r3d = bpy.context.region_data
     viewport_matrix = viewport_r3d.view_matrix.inverted()
     cam_obj = bpy.context.space_data.camera
 
-    # Shooting a ray from the camera, through the mouse cursor towards the grid with a length of 100000
-    # If the camera is more than 100000 units away from the grid it won't detect a point
+    # Shooting a ray from the camera, through the mouse cursor towards the grid with a length of 1e5
+    # If the camera is more than 1e5 units away from the grid it won't detect a point
     ray_start = viewport_matrix.to_translation()
-    ray_depth = viewport_matrix @ Vector((0, 0, -100000))
+    ray_depth = viewport_matrix @ Vector((0, 0, -1e5))
 
     # Get the 3D vector position of the mouse
     ray_end = view3d_utils.region_2d_to_location_3d(viewport_region, viewport_r3d, (mouse_pos[0], mouse_pos[1]), ray_depth)
@@ -580,11 +587,13 @@ def active_render_engine():
 
 
 @blender_version_wrapper("<=","2.79")
-def depsgraph_update():
-    bpy.context.scene.update()
+def depsgraph_update(scene=None):
+    scene = scene or bpy.context.scene
+    scene.update()
 @blender_version_wrapper(">=","2.80")
-def depsgraph_update():
-    bpy.context.view_layer.depsgraph.update()
+def depsgraph_update(depsgraph=None):
+    depsgraph = depsgraph or bpy.context.evaluated_depsgraph_get()
+    depsgraph.update()
 
 
 @blender_version_wrapper("<=","2.79")
@@ -654,13 +663,21 @@ def set_cursor_location(loc:tuple):
     bpy.context.scene.cursor.location = loc
 
 
-def mouse_in_view3d_window(event):
+def mouse_in_view3d_window(event, include_tools_panel=False, include_ui_panel=False, include_header=False):
     regions = dict()
     for region in bpy.context.area.regions:
         regions[region.type] = region
-    mouse_pos = Vector((event.mouse_x, event.mouse_y))
-    window_dimensions = Vector((regions["WINDOW"].width - regions["UI"].width, regions["WINDOW"].height - regions["HEADER"].height))
-    return regions["TOOLS"].width < mouse_pos.x < window_dimensions.x and mouse_pos.y < window_dimensions.y
+    min_x = 0 if include_tools_panel else regions["TOOLS"].width
+    min_y = 0 if regions["HEADER"].alignment == "TOP" or include_header else regions["HEADER"].height
+    mouse_region_pos = Vector((event.mouse_x, event.mouse_y)) - Vector((regions["WINDOW"].x, regions["WINDOW"].y))
+    window_dimensions = Vector((regions["WINDOW"].width, regions["WINDOW"].height))
+    if include_tools_panel:
+        window_dimensions.x -= regions["TOOLS"].width
+    if include_ui_panel:
+        window_dimensions.x -= regions["UI"].width
+    if include_header:
+        window_dimensions.y -= regions["HEADER"].height
+    return min_x < mouse_region_pos.x < window_dimensions.x and min_y < mouse_region_pos.y < window_dimensions.y
 
 
 @blender_version_wrapper("<=","2.79")
@@ -717,17 +734,21 @@ def called_from_shortcut(event:Event, operator:str, keymap:str=None):
 def new_window(area_type, width=640, height=480):
     # Modify scene settings
     render = bpy.context.scene.render
+    prefs = get_preferences()
     orig_settings = {
         "resolution_x": render.resolution_x,
         "resolution_y": render.resolution_y,
         "resolution_percentage": render.resolution_percentage,
-        "display_mode": render.display_mode,
+        "display_mode": prefs.view.render_display_type if bpy.app.version[1] > 80 else render.display_mode,
     }
 
     render.resolution_x = width
     render.resolution_y = height
     render.resolution_percentage = 100
-    render.display_mode = "WINDOW"  # Call user prefs window
+    if bpy.app.version[1] > 80:
+        prefs.view.render_display_type = "WINDOW"
+    else:
+        render.display_mode = "WINDOW"
 
     bpy.ops.render.view_show("INVOKE_DEFAULT")
 
@@ -737,8 +758,13 @@ def new_window(area_type, width=640, height=480):
     area.type = area_type
 
     # reset scene settings
-    for key in orig_settings:
-        setattr(render, key, orig_settings[key])
+    render.resolution_x = orig_settings["resolution_x"]
+    render.resolution_y = orig_settings["resolution_y"]
+    render.resolution_percentage = orig_settings["resolution_percentage"]
+    if bpy.app.version[1] > 80:
+        prefs.view.render_display_type = orig_settings["display_mode"]
+    else:
+        render.display_mode = orig_settings["display_mode"]
 
     return window
 
@@ -792,10 +818,10 @@ def is_navigation_event(event:Event):
     return False
 
 
-def load_from_library(blendfile_path, data_attr, filenames=None, overwrite_data=False, action="APPEND"):
+def load_from_library(blendfile_path, data_attr, filenames=None, overwrite_data=False, action="APPEND", relative=False):
     data_block_infos = list()
     orig_data_names = lambda: None
-    with bpy.data.libraries.load(blendfile_path, link=action == "LINK") as (data_from, data_to):
+    with bpy.data.libraries.load(blendfile_path, link=action == "LINK", relative=relative) as (data_from, data_to):
         # if only appending some of the filenames
         if filenames is not None:
             # rebuild 'data_attr' of data_from based on filenames in 'filenames' list

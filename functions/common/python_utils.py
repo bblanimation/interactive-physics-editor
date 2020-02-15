@@ -192,6 +192,13 @@ def camel_to_snake_case(str):
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
+def safe_execute(default, exception, function, *args):
+    try:
+        return function(*args)
+    except exception:
+        return default
+
+
 class Suppressor(object):
     """ silence function and prevent exceptions """
     def __enter__(self):
