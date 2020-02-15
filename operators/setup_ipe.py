@@ -59,9 +59,8 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
 
             # close sim
             if event.type == "RET" or scn.physics.status == "CLOSE":
-                # ensure mouse is in 3D_VIEW
-                space, i = get_quadview_index(context, event.mouse_x, event.mouse_y)
-                if space in (None, "UI" if b280() else "TOOLS"):
+                if not mouse_in_view3d_window(event, include_tools_panel=True, include_ui_panel=True, include_header=True):
+                    self.report({"WARNING"}, "Move your mouse into the 3D View window to close IPE")
                     return {"RUNNING_MODAL"}
                 self.close_interactive_sim()
                 return {"FINISHED"}
@@ -223,6 +222,7 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
         bpy.app.handlers.frame_change_post.append(handle_edit_session_post)
 
     def close_interactive_sim(self):
+        bpy.ops.screen.animation_cancel()
         # clean up UI
         self.ui_end()
         # do the rest of the cleanup
@@ -255,7 +255,6 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
         except ValueError:
             pass
         bpy.ops.rigidbody.objects_remove()
-        bpy.ops.screen.animation_cancel()
 
     def cancel_interactive_sim(self):
         for obj_n in self.obj_names:
