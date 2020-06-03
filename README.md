@@ -6,7 +6,7 @@ The Interactive Physics Editor is an addon for Blender designed to simplify the 
 
 You can purchase Interactive Physics Editor on the [Blender Market](https://www.blendermarket.com/products/interactive-physics-editor)
 
-Purchasing a license entitles you to tool support and helps ensure the addon's continued development.
+Purchasing a license (and/or sponsoring the me here on GitHub) entitles you to tool support and helps ensure the addon's continued development.
 
 ## Getting Support
 
