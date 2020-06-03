@@ -59,7 +59,7 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
 
             # close sim
             if event.type == "RET" or scn.physics.status == "CLOSE":
-                if not mouse_in_view3d_window(event, include_tools_panel=True, include_ui_panel=True, include_header=True):
+                if not mouse_in_view3d_window(event, include_tools_panel=True, include_ui_panel=True, include_header=True) and b280():
                     self.report({"WARNING"}, "Move your mouse into the 3D View window to close IPE")
                     return {"RUNNING_MODAL"}
                 self.close_interactive_sim()

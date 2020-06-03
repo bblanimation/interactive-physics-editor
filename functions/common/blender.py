@@ -668,7 +668,7 @@ def mouse_in_view3d_window(event, include_tools_panel=False, include_ui_panel=Fa
     for region in bpy.context.area.regions:
         regions[region.type] = region
     min_x = 0 if include_tools_panel else regions["TOOLS"].width
-    min_y = 0 if regions["HEADER"].alignment == "TOP" or include_header else regions["HEADER"].height
+    min_y = 0 if not b280() or regions["HEADER"].alignment == "TOP" or include_header else regions["HEADER"].height
     mouse_region_pos = Vector((event.mouse_x, event.mouse_y)) - Vector((regions["WINDOW"].x, regions["WINDOW"].y))
     window_dimensions = Vector((regions["WINDOW"].width, regions["WINDOW"].height))
     if not include_tools_panel:
