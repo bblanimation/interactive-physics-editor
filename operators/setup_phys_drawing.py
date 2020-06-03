@@ -36,7 +36,7 @@ class interactive_sim_drawing():
 
     def ui_start(self):
         # # report something useful to user
-        # bpy.context.area.header_text_set("Click & drag to add bricks (+'ALT' to remove). Press 'RETURN' to commit changes")
+        # bpy.context.area.header_text_set("PLACEHOLDER")
         # update dpi
         prefs = get_preferences(bpy.context)
         ui_scale = prefs.view.ui_scale
@@ -184,51 +184,7 @@ class interactive_sim_drawing():
         bgl.glPopMatrix()
 
     def draw_postpixel(self):
-        dtext = "  'D' for Draw/Cut Tool"
-        mtext = "  'S' for Merge/Split Tool"
-        ptext = "  'M' for Material Paintbrush Tool"
-        # draw instructions text
-        if self.mode == "DRAW":
-            text = "Click & drag to add bricks"
-            self.draw_text_2d(text, position=(50, 250))
-            text = "+'ALT' to remove"
-            self.draw_text_2d(text, position=(50, 220))
-            text = "+'SHIFT' to cut"
-            self.draw_text_2d(text, position=(50, 190))
-            dtext = "*" + dtext[1:]
-        elif self.mode == "MERGE/SPLIT":
-            text = "Click & drag to merge bricks"
-            self.draw_text_2d(text, position=(50, 250))
-            text = "+'ALT' to split horizontally"
-            self.draw_text_2d(text, position=(50, 220))
-            text = "+'SHIFT' to split vertically"
-            self.draw_text_2d(text, position=(50, 190))
-            mtext = "*" + mtext[1:]
-        elif self.mode == "PAINT":
-            text = "Click & drag to paint bricks with target material"
-            self.draw_text_2d(text, position=(50, 190))
-            ptext = "*" + ptext[1:]
-        text = "'RETURN' to commit changes"
-        self.draw_text_2d(text, position=(50, 160))
-        # ...api_current/bpy.types.Area.html?highlight=bpy.types.area
-        header_height = bpy.context.area.regions[0].height # 26px
-        height = bpy.context.area.height + header_height
-        # draw tool switcher text
-        text = "Switch Tools:"
-        self.draw_text_2d(text, position=(40, height - 200))
-        self.draw_text_2d(dtext, position=(40, height - 230))
-        self.draw_text_2d(mtext, position=(40, height - 260))
-        self.draw_text_2d(ptext, position=(40, height - 290))
-
-        # if self.mode == "DRAW":
-        #     text = "Click & drag to add bricks (+'ALT' to remove, +'SHIFT' to cut)"
-        # elif self.mode == "PAINT":
-        #     text = "Click & drag to paint bricks with target material"
-        # elif self.mode == "MERGE/SPLIT":
-        #     text = "Click & drag to merge bricks (+'ALT' to split horizontally, +'SHIFT' to split vertically)"
-        # self.draw_text_2d(text, position=(127, 80))
-        # text = "Press 'RETURN' to commit changes"
-        # self.draw_text_2d(text, position=(127, 50))
+        pass
 
     def draw_text_2d(self, text, font_id=0, color=(1, 1, 1, 1), position=(0, 0)):
         # draw some text

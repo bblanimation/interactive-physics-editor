@@ -97,7 +97,7 @@ class PHYSICS_PT_interactive_editor(Panel):
             layout.split()
             col = layout.column(align=True)
             col.scale_y = 0.7
-            col.label(text="Press 'RETURN' to commit")
+            col.label(text="Press 'SHIFT' + 'RETURN' to commit")
             col.label(text="Press 'ESC' to cancel")
 
 

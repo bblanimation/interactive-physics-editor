@@ -36,8 +36,12 @@ from bpy.props import *
 # Addon imports
 from .lib.classes_to_register import *
 from .lib.property_groups import *
+from .lib.keymaps import add_keymaps
 from .functions.common import *
 from . import addon_updater_ops
+
+# store keymaps here to access after registration
+addon_keymaps = []
 
 
 def register():
@@ -51,16 +55,31 @@ def register():
     Object.limit_location = PointerProperty(type=LimitProperties)
     Object.limit_rotation = PointerProperty(type=LimitProperties)
 
+    # handle the keymaps
+    wm = bpy.context.window_manager
+    if wm.keyconfigs.addon: # check this to avoid errors in background case
+        km = wm.keyconfigs.addon.keymaps.new(name="Object Mode", space_type="EMPTY")
+        add_keymaps(km)
+        addon_keymaps.append(km)
+
     # addon updater code and configurations
     addon_updater_ops.register(bl_info)
 
 def unregister():
     # unregister addon updater
     addon_updater_ops.unregister()
+
+    # handle the keymaps
+    wm = bpy.context.window_manager
+    for km in addon_keymaps:
+        wm.keyconfigs.addon.keymaps.remove(km)
+    addon_keymaps.clear()
+
     # unregister properties
     del Scene.physics
     del Object.limit_location
     del Object.limit_rotation
+
     # unregister classes
     for cls in classes:
         bpy.utils.unregister_class(cls)
