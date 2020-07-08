@@ -50,7 +50,7 @@ class PHYSICS_PT_interactive_editor(Panel):
 
         col = layout.column(align=True)
         if context.scene.name != "Interactive Physics Session":
-            col.operator("physics.setup_ipe", text="New Interactive Physics Session", icon="PHYSICS")
+            col.operator("physics.setup_and_run_ipe", text="New Interactive Physics Session", icon="PHYSICS")
         else:
             obj = bpy.context.active_object
             if obj is None or obj.rigid_body is None:
@@ -68,6 +68,7 @@ class PHYSICS_PT_interactive_editor(Panel):
             col.label(text="Collision Shape:")
             col.prop(obj.rigid_body, "collision_shape", text="")
             col.prop(obj.rigid_body, "collision_margin", text="Margin")
+
 
             # layout.separator()
             #
@@ -101,12 +102,37 @@ class PHYSICS_PT_interactive_editor(Panel):
             col.label(text="Press 'ESC' to cancel")
 
 
-class PHYSICS_PT_interactive_editor_gravity(Panel):
+class PHYSICS_PT_interactive_editor_rbw(Panel):
+    bl_space_type  = "VIEW_3D"
+    bl_region_type = "UI" if b280() else "TOOLS"
+    bl_label       = "Rigid Body World"
+    bl_parent_id   = "PHYSICS_PT_interactive_editor"
+    bl_idname      = "PHYSICS_PT_interactive_editor_rbw"
+    bl_context     = "objectmode"
+    bl_category    = "Physics"
+    # bl_options     = {"DEFAULT_CLOSED"}
+
+    @classmethod
+    def poll(self, context):
+        """ ensures operator can execute (if not, returns false) """
+        return context.scene.name == "Interactive Physics Session"
+
+    def draw(self, context):
+        layout = self.layout
+        scn = context.scene
+
+        col = layout.column(align=False)
+        col.prop(scn.rigidbody_world, "steps_per_second")
+        col.prop(scn.rigidbody_world, "solver_iterations")
+
+
+
+class PHYSICS_PT_interactive_editor_rbw_gravity(Panel):
     bl_space_type  = "VIEW_3D"
     bl_region_type = "UI" if b280() else "TOOLS"
     bl_label       = "Gravity"
-    bl_parent_id   = "PHYSICS_PT_interactive_editor"
-    bl_idname      = "PHYSICS_PT_interactive_editor_gravity"
+    bl_parent_id   = "PHYSICS_PT_interactive_editor_rbw"
+    bl_idname      = "PHYSICS_PT_interactive_editor_rbw_gravity"
     bl_context     = "objectmode"
     bl_category    = "Physics"
     # bl_options     = {"DEFAULT_CLOSED"}

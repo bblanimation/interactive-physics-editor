@@ -24,9 +24,9 @@ from mathutils import Matrix, Vector
 from .setup_phys_drawing import *
 from ..functions import *
 
-class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
+class PHYSICS_OT_setup_and_run_ipe(Operator, interactive_sim_drawing):
     """Switch to new scene and set up for rigid body physics simulation"""
-    bl_idname = "physics.setup_ipe"
+    bl_idname = "physics.setup_and_run_ipe"
     bl_label = "Setup New Physics Scene for Simulation"
     bl_options = {"REGISTER","UNDO"}
 
@@ -40,7 +40,6 @@ class PHYSICS_OT_setup_ipe(Operator, interactive_sim_drawing):
     def modal(self, context, event):
         try:
             scn = bpy.context.scene
-            # return {"PASS_THROUGH"}
             if self.selected_objs != bpy.context.selected_objects:
                 self.selected_objs = bpy.context.selected_objects
                 objs = scn.collection.all_objects if b280() else scn.objects
