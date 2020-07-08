@@ -27,7 +27,7 @@ from ..functions import *
 class PHYSICS_OT_apply_settings_to_selected(Operator, interactive_sim_drawing):
     """ Apply rigid body settings (type, collision shape) to selected objects """
     bl_idname = "physics.apply_settings_to_selected"
-    bl_label = "Apply to Selected Objects"
+    bl_label = "Apply Settings to Selected"
     bl_options = {"REGISTER","UNDO"}
 
     ################################################

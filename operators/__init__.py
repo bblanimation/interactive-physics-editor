@@ -18,4 +18,4 @@
 from .apply_settings_to_selected import *
 from .close_ipe import *
 from .recenter_tolerance_at_origin import *
-from .setup_ipe import *
+from .setup_and_run_ipe import *
