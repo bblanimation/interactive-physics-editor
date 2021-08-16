@@ -126,7 +126,6 @@ class PHYSICS_PT_interactive_editor_rbw(Panel):
         col.prop(scn.rigidbody_world, "solver_iterations")
 
 
-
 class PHYSICS_PT_interactive_editor_rbw_gravity(Panel):
     bl_space_type  = "VIEW_3D"
     bl_region_type = "UI" if b280() else "TOOLS"
