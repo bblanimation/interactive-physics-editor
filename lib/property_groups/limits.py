@@ -24,13 +24,13 @@ from ...functions.property_callbacks import *
 
 
 class LimitProperties(bpy.types.PropertyGroup):
-    loc_tolerance = FloatVectorProperty(
+    loc_tolerance: FloatVectorProperty(
         name="Tolerance for location constraint (0 to disable)",
         subtype="TRANSLATION",
         unit="LENGTH",
         update=update_loc_tolerance,
     )
-    rot_tolerance = FloatVectorProperty(
+    rot_tolerance: FloatVectorProperty(
         name="Tolerance for rotation constraint (0 to disable)",
         subtype="AXISANGLE",
         unit="ROTATION",

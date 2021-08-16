@@ -18,8 +18,8 @@
 bl_info = {
     "name"        : "Interactive Physics Editor",
     "author"      : "Christopher Gearhart <chris@bblanimation.com> & Patrick Moore <patrick@d3tool.com>",
-    "version"     : (1, 1, 6),
-    "blender"     : (2, 83, 0),
+    "version"     : (1, 1, 7),
+    "blender"     : (2, 93, 2),
     "description" : "Simplifies the process of positioning multiple objects in 3D space with collision handling",
     "location"    : "View 3D > Tools > Physics > Interactive Physics Editor",
     "warning"     : "",  # used for warning icon and text in addons panel
@@ -38,7 +38,6 @@ from .lib.classes_to_register import *
 from .lib.property_groups import *
 from .lib.keymaps import add_keymaps
 from .functions.common import *
-from . import addon_updater_ops
 
 # store keymaps here to access after registration
 addon_keymaps = []
@@ -58,17 +57,11 @@ def register():
     # handle the keymaps
     wm = bpy.context.window_manager
     if wm.keyconfigs.addon: # check this to avoid errors in background case
-        km = wm.keyconfigs.addon.keymaps.new(name="Object Mode", space_type="EMPTY")
+        km = wm.keyconfigs.addon.keymaps.new(name="Interactive Physics Editor", space_type="EMPTY")
         add_keymaps(km)
         addon_keymaps.append(km)
 
-    # addon updater code and configurations
-    addon_updater_ops.register(bl_info)
-
 def unregister():
-    # unregister addon updater
-    addon_updater_ops.unregister()
-
     # handle the keymaps
     wm = bpy.context.window_manager
     for km in addon_keymaps:

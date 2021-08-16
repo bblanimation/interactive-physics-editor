@@ -20,7 +20,6 @@ from ..ui import *
 from .property_groups import *
 from .preferences import *
 from .report_error import *
-from .. import addon_updater_ops
 
 classes = (
     # property groups
@@ -40,7 +39,7 @@ classes = (
     PHYSICS_PT_interactive_editor_limit_rotation,
     PHYSICS_PT_editor_actions,
     # lib
-    INTERPHYS_PT_preferences,
+    # INTERPHYS_PT_preferences,
     SCENE_OT_report_error,
     SCENE_OT_close_report_error,
 )

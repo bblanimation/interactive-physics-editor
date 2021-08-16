@@ -48,7 +48,7 @@ class PHYSICS_OT_recenter_tolerance_at_origin(Operator, interactive_sim_drawing)
     ###################################################
     # class variables
 
-    loc = BoolProperty(default=False)
-    rot = BoolProperty(default=False)
+    loc: BoolProperty(default=False)
+    rot: BoolProperty(default=False)
 
     ################################################

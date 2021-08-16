@@ -122,7 +122,7 @@ class PHYSICS_PT_interactive_editor_rbw(Panel):
         scn = context.scene
 
         col = layout.column(align=False)
-        col.prop(scn.rigidbody_world, "steps_per_second")
+        col.prop(scn.rigidbody_world, "substeps_per_frame")
         col.prop(scn.rigidbody_world, "solver_iterations")
 
 

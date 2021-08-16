@@ -48,7 +48,7 @@ class PHYSICS_OT_close_ipe(Operator, interactive_sim_drawing):
     ###################################################
     # class variables
 
-    status = EnumProperty(
+    status: EnumProperty(
         items=[
             ("CLOSE", "Close", "", 0),
             ("CANCEL", "Cancel", "", 1),
